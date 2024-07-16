@@ -1,0 +1,127 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Student {
+  id        String     @id @default(uuid())
+  name      String
+  email     String     @unique
+  password  String
+  birthDate DateTime
+  course    String
+  imagePath String?
+  active    Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  followers Follower[]
+  routine   Routine?
+  reactions Reaction[]
+  comments  Comment[]
+}
+
+model College {
+  id        String     @id @default(uuid())
+  name      String
+  email     String     @unique
+  password  String
+  testDate  DateTime
+  phone     String
+  address   String
+  imagePath String?
+  active    Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  followers Follower[]
+  books     Book[]
+  courses   Course[]
+  posts     Post[]
+  reactions Reaction[]
+  comments  Comment[]
+}
+
+model Follower {
+  id        String  @id @default(uuid())
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id])
+  collegeId String
+  college   College @relation(fields: [collegeId], references: [id])
+}
+
+model Routine {
+  id        String   @id @default(uuid())
+  monday    String?
+  tuesday   String?
+  wednesday String?
+  thursday  String?
+  friday    String?
+  saturday  String?
+  sunday    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  studentId String   @unique
+  student   Student  @relation(fields: [studentId], references: [id])
+}
+
+model Book {
+  id        String   @id @default(uuid())
+  name      String
+  author    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  collegeId String
+  college   College  @relation(fields: [collegeId], references: [id])
+}
+
+model Course {
+  id        String   @id @default(uuid())
+  name      String
+  period    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  collegeId String
+  college   College  @relation(fields: [collegeId], references: [id])
+}
+
+model Post {
+  id        String     @id @default(uuid())
+  content   String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  collegeId String
+  college   College    @relation(fields: [collegeId], references: [id])
+  reactions Reaction[]
+  comments  Comment[]
+}
+
+model Reaction {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id])
+  collegeId String
+  college   College  @relation(fields: [collegeId], references: [id])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  userType  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  commentId String?  @unique
+  comment   Comment? @relation("ParentComment", fields: [commentId], references: [id])
+  parent    Comment? @relation("ParentComment")
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id])
+  collegeId String
+  college   College  @relation(fields: [collegeId], references: [id])
+}
