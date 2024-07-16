@@ -1,9 +1,24 @@
 {
   "name": "sharppen-api-v2",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "version": "1.0.0",
   "private": true,
+  "description": "API v2 of the Social Network SharpPen, focused on the interactions between Colleges and their Students.",
+  "author": "Gabriel Rapucci Gonzalez <gabrielrapuccigonzalez14@hotmail.com> (https://gabrielrapucci.com.br)",
+  "homepage": "https://github.com/gabrielrg14/sharppen-api-v2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gabrielrg14/sharppen-api-v2"
+  },
+  "bugs": {
+    "url": "https://github.com/gabrielrg14/sharppen-api-v2/issues"
+  },
+  "keywords": [
+    "nestjs",
+    "sharppen-api",
+    "rest-api",
+    "back-end",
+    "portfolio"
+  ],
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
@@ -22,7 +37,9 @@
   "dependencies": {
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
+    "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^10.0.0",
+    "@prisma/client": "^5.16.2",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1"
   },
