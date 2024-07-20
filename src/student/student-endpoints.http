@@ -1,0 +1,55 @@
+# CREATE STUDENT
+POST http://localhost:3000/student
+Content-Type: application/json
+
+{
+    "name": "Test",
+    "email": "test@test.com",
+    "birthDate": "1990-01-01",
+    "course": "Test",
+    "password": "@Test123",
+    "passwordConfirmation": "@Test123"
+}
+
+###
+
+# GET ALL STUDENTS
+GET http://localhost:3000/student
+
+###
+
+# GET STUDENT BY ID
+GET http://localhost:3000/student/70c3ab2b-bd74-417e-871b-bbf7044d0bdb
+
+###
+
+# UPDATE STUDENT BY ID
+PUT http://localhost:3000/student/70c3ab2b-bd74-417e-871b-bbf7044d0bdb
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
+Content-Type: application/json
+
+{
+    "name": "Test 2",
+    "email": "test2@test.com",
+    "birthDate": "2000-12-12",
+    "course": "Test 2"
+}
+
+###
+
+# UPDATE STUDENT PASSWORD BY ID
+PATCH http://localhost:3000/student/70c3ab2b-bd74-417e-871b-bbf7044d0bdb/password
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
+Content-Type: application/json
+
+{
+    "currentPassword": "@Test123",
+    "password": "@Test1234",
+    "passwordConfirmation": "@Test1234"
+}
+
+###
+
+# DELETE STUDENT BY ID
+DELETE http://localhost:3000/student/70c3ab2b-bd74-417e-871b-bbf7044d0bdb
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
