@@ -31,12 +31,12 @@ export class AuthService implements AuthRepository {
 
         const passwordMatch = await bcrypt.compareSync(
             password,
-            student.password ?? college.password,
+            student?.password || college?.password,
         );
         if (!passwordMatch)
             throw new UnauthorizedException(this.unauthorizedMessage);
 
-        const payload = { sub: student.id ?? college.id };
+        const payload = { sub: student?.id || college?.id };
         return {
             token: await this.jwtService.signAsync(payload),
         };

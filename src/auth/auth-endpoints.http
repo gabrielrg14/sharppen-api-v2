@@ -1,8 +1,19 @@
-# AUTHENTICATE
+# STUDENT AUTHENTICATION
 POST http://localhost:3000/auth
 Content-Type: application/json
 
 {
     "email": "test@test.com",
+    "password": "@Test123"
+}
+
+###
+
+# COLLEGE AUTHENTICATION
+POST http://localhost:3000/auth
+Content-Type: application/json
+
+{
+    "email": "test@college.com",
     "password": "@Test123"
 }
