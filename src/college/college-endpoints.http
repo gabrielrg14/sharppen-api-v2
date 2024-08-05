@@ -1,0 +1,57 @@
+# CREATE COLLEGE
+POST http://localhost:3000/college
+Content-Type: application/json
+
+{
+    "name": "College Test",
+    "email": "test@college.com",
+    "testDate": "2025-02-01",
+    "phone": "(11) 1213-1415",
+    "address": "Test Address",
+    "password": "@Test123",
+    "passwordConfirmation": "@Test123"
+}
+
+###
+
+# GET ALL COLLEGES
+GET http://localhost:3000/college
+
+###
+
+# GET COLLEGE BY ID
+GET http://localhost:3000/college/c2b4e3bd-6d87-4137-9ad1-395f343f1d8a
+
+###
+
+# UPDATE COLLEGE BY ID
+PUT http://localhost:3000/college/c2b4e3bd-6d87-4137-9ad1-395f343f1d8a
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
+Content-Type: application/json
+
+{
+    "name": "College Test 2",
+    "email": "test2@college.com",
+    "testDate": "2025-01-01",
+    "phone": "(12) 1314-1516",
+    "address": "Test Address 2"
+}
+
+###
+
+# UPDATE COLLEGE PASSWORD BY ID
+PATCH http://localhost:3000/college/c2b4e3bd-6d87-4137-9ad1-395f343f1d8a/password
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
+Content-Type: application/json
+
+{
+    "currentPassword": "@Test123",
+    "password": "@Test1234",
+    "passwordConfirmation": "@Test1234"
+}
+
+###
+
+# DELETE COLLEGE BY ID
+DELETE http://localhost:3000/college/c2b4e3bd-6d87-4137-9ad1-395f343f1d8a
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
