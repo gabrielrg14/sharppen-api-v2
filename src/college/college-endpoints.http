@@ -14,18 +14,18 @@ Content-Type: application/json
 
 ###
 
-# GET ALL COLLEGES
+# GET ALL ACTIVE COLLEGES
 GET http://localhost:3000/college
 
 ###
 
 # GET COLLEGE BY ID
-GET http://localhost:3000/college/c2b4e3bd-6d87-4137-9ad1-395f343f1d8a
+GET http://localhost:3000/college/808f7526-87f6-42fa-9f63-3a3ae23bdeb0
 
 ###
 
 # UPDATE COLLEGE BY ID
-PUT http://localhost:3000/college/c2b4e3bd-6d87-4137-9ad1-395f343f1d8a
+PUT http://localhost:3000/college/808f7526-87f6-42fa-9f63-3a3ae23bdeb0
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 Content-Type: application/json
 
@@ -40,7 +40,7 @@ Content-Type: application/json
 ###
 
 # UPDATE COLLEGE PASSWORD BY ID
-PATCH http://localhost:3000/college/c2b4e3bd-6d87-4137-9ad1-395f343f1d8a/password
+PATCH http://localhost:3000/college/808f7526-87f6-42fa-9f63-3a3ae23bdeb0/password
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 Content-Type: application/json
 
@@ -52,6 +52,18 @@ Content-Type: application/json
 
 ###
 
+# DEACTIVATE COLLEGE BY ID
+PATCH http://localhost:3000/college/deactivate/808f7526-87f6-42fa-9f63-3a3ae23bdeb0
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
+
+###
+
+# REACTIVATE COLLEGE BY ID
+PATCH http://localhost:3000/college/reactivate/808f7526-87f6-42fa-9f63-3a3ae23bdeb0
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
+
+###
+
 # DELETE COLLEGE BY ID
-DELETE http://localhost:3000/college/c2b4e3bd-6d87-4137-9ad1-395f343f1d8a
+DELETE http://localhost:3000/college/808f7526-87f6-42fa-9f63-3a3ae23bdeb0
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}

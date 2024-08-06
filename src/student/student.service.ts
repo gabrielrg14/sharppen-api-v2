@@ -124,8 +124,7 @@ export class StudentService implements StudentRepository {
         const { where, data } = params;
         const { email, birthDate } = data;
 
-        const student = await this.prisma.student.findUnique({ where });
-        if (!student) throw new NotFoundException(this.notFoundMessage(where));
+        const student = await this.getStudent(where);
 
         if (email) {
             const studentEmail = await this.prisma.student.findUnique({
@@ -188,10 +187,33 @@ export class StudentService implements StudentRepository {
         return updatedStudent;
     }
 
-    async deleteStudent(where: Prisma.StudentWhereUniqueInput): Promise<void> {
-        const student = await this.prisma.student.findUnique({ where });
-        if (!student) throw new NotFoundException(this.notFoundMessage(where));
+    async changeStudentState(params: {
+        where: Prisma.StudentWhereUniqueInput;
+        active: boolean;
+    }): Promise<StudentDTO> {
+        const { where, active } = params;
 
+        await this.getStudent(where);
+
+        const changedStudent = await this.prisma.student.update({
+            where,
+            data: { active },
+            select: this.studentSelect,
+        });
+
+        if (!changedStudent)
+            throw new BadRequestException(
+                this.badRequestMessage(
+                    'student',
+                    active ? 'reactivated' : 'deactivated',
+                ),
+            );
+
+        return changedStudent;
+    }
+
+    async deleteStudent(where: Prisma.StudentWhereUniqueInput): Promise<void> {
+        await this.getStudent(where);
         const deletedStudent = await this.prisma.student.delete({ where });
         if (!deletedStudent)
             throw new BadRequestException(

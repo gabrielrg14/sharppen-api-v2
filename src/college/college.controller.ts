@@ -81,6 +81,28 @@ export class CollegeController {
         });
     }
 
+    @Patch('/deactivate/:uuid')
+    @UseGuards(AuthGuard)
+    deactivateCollegeById(
+        @Param('uuid', ParseUUIDPipe) collegeId: string,
+    ): Promise<CollegeDTO> {
+        return this.collegeService.changeCollegeState({
+            where: { id: collegeId },
+            active: false,
+        });
+    }
+
+    @Patch('/reactivate/:uuid')
+    @UseGuards(AuthGuard)
+    reactivateCollegeById(
+        @Param('uuid', ParseUUIDPipe) collegeId: string,
+    ): Promise<CollegeDTO> {
+        return this.collegeService.changeCollegeState({
+            where: { id: collegeId },
+            active: true,
+        });
+    }
+
     @Delete('/:uuid')
     @UseGuards(AuthGuard)
     deleteCollegeById(

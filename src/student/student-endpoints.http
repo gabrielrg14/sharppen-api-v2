@@ -3,42 +3,42 @@ POST http://localhost:3000/student
 Content-Type: application/json
 
 {
-    "name": "Test",
-    "email": "test@test.com",
+    "name": "Student Test",
+    "email": "test@student.com",
     "birthDate": "1990-01-01",
-    "course": "Test",
+    "course": "Test Course",
     "password": "@Test123",
     "passwordConfirmation": "@Test123"
 }
 
 ###
 
-# GET ALL STUDENTS
+# GET ALL ACTIVE STUDENTS
 GET http://localhost:3000/student
 
 ###
 
 # GET STUDENT BY ID
-GET http://localhost:3000/student/70c3ab2b-bd74-417e-871b-bbf7044d0bdb
+GET http://localhost:3000/student/f5f65128-5ec5-4465-a239-f1dbe7787445
 
 ###
 
 # UPDATE STUDENT BY ID
-PUT http://localhost:3000/student/70c3ab2b-bd74-417e-871b-bbf7044d0bdb
+PUT http://localhost:3000/student/f5f65128-5ec5-4465-a239-f1dbe7787445
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 Content-Type: application/json
 
 {
-    "name": "Test 2",
-    "email": "test2@test.com",
+    "name": "Student Test 2",
+    "email": "test2@student.com",
     "birthDate": "2000-12-12",
-    "course": "Test 2"
+    "course": "Test Course"
 }
 
 ###
 
 # UPDATE STUDENT PASSWORD BY ID
-PATCH http://localhost:3000/student/70c3ab2b-bd74-417e-871b-bbf7044d0bdb/password
+PATCH http://localhost:3000/student/f5f65128-5ec5-4465-a239-f1dbe7787445/password
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 Content-Type: application/json
 
@@ -50,6 +50,18 @@ Content-Type: application/json
 
 ###
 
+# DEACTIVATE STUDENT BY ID
+PATCH http://localhost:3000/student/deactivate/f5f65128-5ec5-4465-a239-f1dbe7787445
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
+
+###
+
+# REACTIVATE STUDENT BY ID
+PATCH http://localhost:3000/student/reactivate/f5f65128-5ec5-4465-a239-f1dbe7787445
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
+
+###
+
 # DELETE STUDENT BY ID
-DELETE http://localhost:3000/student/70c3ab2b-bd74-417e-871b-bbf7044d0bdb
+DELETE http://localhost:3000/student/f5f65128-5ec5-4465-a239-f1dbe7787445
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}

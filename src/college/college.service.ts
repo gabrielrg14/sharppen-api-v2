@@ -125,8 +125,7 @@ export class CollegeService implements CollegeRepository {
         const { where, data } = params;
         const { email, testDate } = data;
 
-        const college = await this.prisma.college.findUnique({ where });
-        if (!college) throw new NotFoundException(this.notFoundMessage(where));
+        const college = await this.getCollege(where);
 
         if (email) {
             const collegeEmail = await this.prisma.college.findUnique({
@@ -189,10 +188,33 @@ export class CollegeService implements CollegeRepository {
         return updatedCollege;
     }
 
-    async deleteCollege(where: Prisma.CollegeWhereUniqueInput): Promise<void> {
-        const college = await this.prisma.college.findUnique({ where });
-        if (!college) throw new NotFoundException(this.notFoundMessage(where));
+    async changeCollegeState(params: {
+        where: Prisma.CollegeWhereUniqueInput;
+        active: boolean;
+    }): Promise<CollegeDTO> {
+        const { where, active } = params;
 
+        await this.getCollege(where);
+
+        const changedCollege = await this.prisma.college.update({
+            where,
+            data: { active },
+            select: this.collegeSelect,
+        });
+
+        if (!changedCollege)
+            throw new BadRequestException(
+                this.badRequestMessage(
+                    'college',
+                    active ? 'reactivated' : 'deactivated',
+                ),
+            );
+
+        return changedCollege;
+    }
+
+    async deleteCollege(where: Prisma.CollegeWhereUniqueInput): Promise<void> {
+        await this.getCollege(where);
         const deletedCollege = await this.prisma.college.delete({ where });
         if (!deletedCollege)
             throw new BadRequestException(
