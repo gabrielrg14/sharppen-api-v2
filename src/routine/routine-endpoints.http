@@ -1,0 +1,46 @@
+# CREATE ROUTINE
+POST http://localhost:3000/routine
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
+Content-Type: application/json
+
+{
+    "monday": "Monday Test",
+    "tuesday": "Tuesday Test",
+    "wednesday": "Wednesday Test",
+    "thursday": "Thursday Test",
+    "friday": "Friday Test"
+}
+
+###
+
+# GET ALL ROUTINES
+GET http://localhost:3000/routine
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
+
+###
+
+# GET ROUTINE BY STUDENT ID
+GET http://localhost:3000/routine/student/73a585fb-04ef-4815-bb3d-3982c0dd53f6
+
+###
+
+# GET ROUTINE BY ID
+GET http://localhost:3000/routine/d6842d30-d8fd-40f3-8d67-6b2a50caaf3d
+
+###
+
+# UPDATE ROUTINE BY ID
+PUT http://localhost:3000/routine/d6842d30-d8fd-40f3-8d67-6b2a50caaf3c
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
+Content-Type: application/json
+
+{
+    "saturday": "Saturday Test",
+    "sunday": "Sunday Test"
+}
+
+###
+
+# DELETE ROUTINE BY ID
+DELETE http://localhost:3000/routine/d6842d30-d8fd-40f3-8d67-6b2a50caaf3c
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
