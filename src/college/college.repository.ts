@@ -5,7 +5,6 @@ import {
     UpdateCollegePasswordDTO,
 } from './dto';
 import { Prisma } from '@prisma/client';
-
 export abstract class CollegeRepository {
     abstract createCollege(data: CreateCollegeDTO): Promise<CollegeDTO>;
 
