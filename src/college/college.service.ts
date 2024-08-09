@@ -2,6 +2,7 @@ import {
     Injectable,
     ConflictException,
     BadRequestException,
+    InternalServerErrorException,
     NotFoundException,
     UnauthorizedException,
 } from '@nestjs/common';
@@ -37,7 +38,7 @@ export class CollegeService implements CollegeRepository {
     private readonly conflictMessage = (email: string): string => {
         return `A college with the email ${email} is already registered.`;
     };
-    private readonly badRequestMessage = (
+    private readonly errorMessage = (
         subject: string,
         adjective: string,
     ): string => {
@@ -46,7 +47,7 @@ export class CollegeService implements CollegeRepository {
     private readonly notFoundMessage = (
         where: Prisma.CollegeWhereUniqueInput,
     ): string => {
-        return `College ${Object.entries(where)
+        return `College with ${Object.entries(where)
             .map(([key, value]) => `${key} ${value}`)
             .join(', ')} was not found.`;
     };
@@ -67,20 +68,20 @@ export class CollegeService implements CollegeRepository {
 
         const passwordHash = await bcrypt.hashSync(password, this.hashSalt);
 
-        const collegeCreated = await this.prisma.college.create({
-            data: {
-                ...data,
-                testDate: new Date(data.testDate),
-                password: passwordHash,
-            },
-            select: this.collegeSelect,
-        });
-        if (!collegeCreated)
-            throw new BadRequestException(
-                this.badRequestMessage('college', 'created'),
+        try {
+            return await this.prisma.college.create({
+                data: {
+                    ...data,
+                    testDate: new Date(data.testDate),
+                    password: passwordHash,
+                },
+                select: this.collegeSelect,
+            });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage('college', 'created'),
             );
-
-        return collegeCreated;
+        }
     }
 
     async getColleges(params: {
@@ -91,31 +92,34 @@ export class CollegeService implements CollegeRepository {
     }): Promise<CollegeDTO[]> {
         const { skip, take, where, orderBy } = params;
 
-        const collegesFound = await this.prisma.college.findMany({
-            skip,
-            take,
-            where,
-            orderBy,
-            select: this.collegeSelect,
-        });
-        if (!collegesFound)
-            throw new BadRequestException(
-                this.badRequestMessage('colleges', 'found'),
+        try {
+            return await this.prisma.college.findMany({
+                skip,
+                take,
+                where,
+                orderBy,
+                select: this.collegeSelect,
+            });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage('colleges', 'found'),
             );
-
-        return collegesFound;
+        }
     }
 
     async getCollege(
         where: Prisma.CollegeWhereUniqueInput,
     ): Promise<CollegeDTO> {
-        const collegeFound = await this.prisma.college.findUnique({
-            where,
-            select: this.collegeSelect,
-        });
-        if (!collegeFound)
-            throw new NotFoundException(this.notFoundMessage(where));
-        return collegeFound;
+        try {
+            const collegeFound = await this.prisma.college.findUnique({
+                where,
+                select: this.collegeSelect,
+            });
+            if (!collegeFound) throw this.notFoundMessage(where);
+            return collegeFound;
+        } catch (err) {
+            throw new NotFoundException(err);
+        }
     }
 
     async updateCollege(params: {
@@ -136,17 +140,17 @@ export class CollegeService implements CollegeRepository {
         }
         if (testDate) data.testDate = new Date(data.testDate);
 
-        const updatedCollege = await this.prisma.college.update({
-            where,
-            data,
-            select: this.collegeSelect,
-        });
-        if (!updatedCollege)
-            throw new BadRequestException(
-                this.badRequestMessage('college', 'updated'),
+        try {
+            return await this.prisma.college.update({
+                where,
+                data,
+                select: this.collegeSelect,
+            });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage('college', 'updated'),
             );
-
-        return updatedCollege;
+        }
     }
 
     async updateCollegePassword(params: {
@@ -175,17 +179,17 @@ export class CollegeService implements CollegeRepository {
             this.hashSalt,
         );
 
-        const updatedCollege = await this.prisma.college.update({
-            where,
-            data: { password: passwordHash },
-            select: this.collegeSelect,
-        });
-        if (!updatedCollege)
-            throw new BadRequestException(
-                this.badRequestMessage('password', 'changed'),
+        try {
+            return await this.prisma.college.update({
+                where,
+                data: { password: passwordHash },
+                select: this.collegeSelect,
+            });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage('password', 'changed'),
             );
-
-        return updatedCollege;
+        }
     }
 
     async changeCollegeState(params: {
@@ -196,29 +200,31 @@ export class CollegeService implements CollegeRepository {
 
         await this.getCollege(where);
 
-        const changedCollege = await this.prisma.college.update({
-            where,
-            data: { active },
-            select: this.collegeSelect,
-        });
-
-        if (!changedCollege)
-            throw new BadRequestException(
-                this.badRequestMessage(
+        try {
+            return await this.prisma.college.update({
+                where,
+                data: { active },
+                select: this.collegeSelect,
+            });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage(
                     'college',
                     active ? 'reactivated' : 'deactivated',
                 ),
             );
-
-        return changedCollege;
+        }
     }
 
     async deleteCollege(where: Prisma.CollegeWhereUniqueInput): Promise<void> {
         await this.getCollege(where);
-        const deletedCollege = await this.prisma.college.delete({ where });
-        if (!deletedCollege)
-            throw new BadRequestException(
-                this.badRequestMessage('college', 'deleted'),
+
+        try {
+            await this.prisma.college.delete({ where });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage('college', 'deleted'),
             );
+        }
     }
 }

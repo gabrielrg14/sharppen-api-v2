@@ -1,7 +1,7 @@
 import {
     Injectable,
     NotFoundException,
-    BadRequestException,
+    InternalServerErrorException,
 } from '@nestjs/common';
 import { CourseRepository } from './course.repository';
 import { PrismaService } from 'src/db/prisma.service';
@@ -30,19 +30,19 @@ export class CourseService implements CourseRepository {
         },
     };
 
-    private readonly badRequestMessage = (
-        subject: string,
-        adjective: string,
-    ): string => {
-        return `Something bad happened and the ${subject} was not ${adjective}.`;
-    };
     private readonly notFoundMessage = (
         subject: string,
         where: Prisma.CourseWhereUniqueInput,
     ): string => {
-        return `${subject} ${Object.entries(where)
+        return `${subject} with ${Object.entries(where)
             .map(([key, value]) => `${key} ${value}`)
             .join(', ')} was not found.`;
+    };
+    private readonly errorMessage = (
+        subject: string,
+        adjective: string,
+    ): string => {
+        return `Something bad happened and the ${subject} was not ${adjective}.`;
     };
 
     async createCourse(
@@ -57,16 +57,16 @@ export class CourseService implements CourseRepository {
                 this.notFoundMessage('College', { id: collegeId }),
             );
 
-        const courseCreated = await this.prisma.course.create({
-            data: { ...data, collegeId },
-            select: this.selectCourse,
-        });
-        if (!courseCreated)
-            throw new BadRequestException(
-                this.badRequestMessage('course', 'created'),
+        try {
+            return await this.prisma.course.create({
+                data: { ...data, collegeId },
+                select: this.selectCourse,
+            });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage('course', 'created'),
             );
-
-        return courseCreated;
+        }
     }
 
     async getCourses(params: {
@@ -77,29 +77,32 @@ export class CourseService implements CourseRepository {
     }): Promise<CourseDTO[]> {
         const { skip, take, where, orderBy } = params;
 
-        const coursesFound = await this.prisma.course.findMany({
-            skip,
-            take,
-            where,
-            orderBy,
-            select: this.selectCourse,
-        });
-        if (!coursesFound)
-            throw new BadRequestException(
-                this.badRequestMessage('courses', 'found'),
+        try {
+            return await this.prisma.course.findMany({
+                skip,
+                take,
+                where,
+                orderBy,
+                select: this.selectCourse,
+            });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage('courses', 'found'),
             );
-
-        return coursesFound;
+        }
     }
 
     async getCourse(where: Prisma.CourseWhereUniqueInput): Promise<CourseDTO> {
-        const courseFound = await this.prisma.course.findUnique({
-            where,
-            select: this.selectCourse,
-        });
-        if (!courseFound)
-            throw new NotFoundException(this.notFoundMessage('Course', where));
-        return courseFound;
+        try {
+            const courseFound = await this.prisma.course.findUnique({
+                where,
+                select: this.selectCourse,
+            });
+            if (!courseFound) throw this.notFoundMessage('Course', where);
+            return courseFound;
+        } catch (err) {
+            throw new NotFoundException(err);
+        }
     }
 
     async updateCourse(params: {
@@ -110,25 +113,28 @@ export class CourseService implements CourseRepository {
 
         await this.getCourse(where);
 
-        const updatedCourse = await this.prisma.course.update({
-            where,
-            data,
-            select: this.selectCourse,
-        });
-        if (!updatedCourse)
-            throw new BadRequestException(
-                this.badRequestMessage('course', 'updated'),
+        try {
+            return await this.prisma.course.update({
+                where,
+                data,
+                select: this.selectCourse,
+            });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage('course', 'updated'),
             );
-
-        return updatedCourse;
+        }
     }
 
     async deleteCourse(where: Prisma.CourseWhereUniqueInput): Promise<void> {
         await this.getCourse(where);
-        const deletedCourse = await this.prisma.course.delete({ where });
-        if (!deletedCourse)
-            throw new BadRequestException(
-                this.badRequestMessage('course', 'deleted'),
+
+        try {
+            await this.prisma.course.delete({ where });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage('course', 'deleted'),
             );
+        }
     }
 }

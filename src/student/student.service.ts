@@ -2,6 +2,7 @@ import {
     Injectable,
     ConflictException,
     BadRequestException,
+    InternalServerErrorException,
     NotFoundException,
     UnauthorizedException,
 } from '@nestjs/common';
@@ -36,7 +37,7 @@ export class StudentService implements StudentRepository {
     private readonly conflictMessage = (email: string): string => {
         return `A student with the email ${email} is already registered.`;
     };
-    private readonly badRequestMessage = (
+    private readonly errorMessage = (
         subject: string,
         adjective: string,
     ): string => {
@@ -45,7 +46,7 @@ export class StudentService implements StudentRepository {
     private readonly notFoundMessage = (
         where: Prisma.StudentWhereUniqueInput,
     ): string => {
-        return `Student ${Object.entries(where)
+        return `Student with ${Object.entries(where)
             .map(([key, value]) => `${key} ${value}`)
             .join(', ')} was not found.`;
     };
@@ -66,20 +67,20 @@ export class StudentService implements StudentRepository {
 
         const passwordHash = await bcrypt.hashSync(password, this.hashSalt);
 
-        const studentCreated = await this.prisma.student.create({
-            data: {
-                ...data,
-                birthDate: new Date(data.birthDate),
-                password: passwordHash,
-            },
-            select: this.studentSelect,
-        });
-        if (!studentCreated)
-            throw new BadRequestException(
-                this.badRequestMessage('student', 'created'),
+        try {
+            return await this.prisma.student.create({
+                data: {
+                    ...data,
+                    birthDate: new Date(data.birthDate),
+                    password: passwordHash,
+                },
+                select: this.studentSelect,
+            });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage('student', 'created'),
             );
-
-        return studentCreated;
+        }
     }
 
     async getStudents(params: {
@@ -90,31 +91,34 @@ export class StudentService implements StudentRepository {
     }): Promise<StudentDTO[]> {
         const { skip, take, where, orderBy } = params;
 
-        const studentsFound = await this.prisma.student.findMany({
-            skip,
-            take,
-            where,
-            orderBy,
-            select: this.studentSelect,
-        });
-        if (!studentsFound)
-            throw new BadRequestException(
-                this.badRequestMessage('students', 'found'),
+        try {
+            return await this.prisma.student.findMany({
+                skip,
+                take,
+                where,
+                orderBy,
+                select: this.studentSelect,
+            });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage('students', 'found'),
             );
-
-        return studentsFound;
+        }
     }
 
     async getStudent(
         where: Prisma.StudentWhereUniqueInput,
     ): Promise<StudentDTO> {
-        const studentFound = await this.prisma.student.findUnique({
-            where,
-            select: this.studentSelect,
-        });
-        if (!studentFound)
-            throw new NotFoundException(this.notFoundMessage(where));
-        return studentFound;
+        try {
+            const studentFound = await this.prisma.student.findUnique({
+                where,
+                select: this.studentSelect,
+            });
+            if (!studentFound) throw this.notFoundMessage(where);
+            return studentFound;
+        } catch (err) {
+            throw new NotFoundException(err);
+        }
     }
 
     async updateStudent(params: {
@@ -135,17 +139,17 @@ export class StudentService implements StudentRepository {
         }
         if (birthDate) data.birthDate = new Date(data.birthDate);
 
-        const updatedStudent = await this.prisma.student.update({
-            where,
-            data,
-            select: this.studentSelect,
-        });
-        if (!updatedStudent)
-            throw new BadRequestException(
-                this.badRequestMessage('student', 'updated'),
+        try {
+            return await this.prisma.student.update({
+                where,
+                data,
+                select: this.studentSelect,
+            });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage('student', 'updated'),
             );
-
-        return updatedStudent;
+        }
     }
 
     async updateStudentPassword(params: {
@@ -174,17 +178,17 @@ export class StudentService implements StudentRepository {
             this.hashSalt,
         );
 
-        const updatedStudent = await this.prisma.student.update({
-            where,
-            data: { password: passwordHash },
-            select: this.studentSelect,
-        });
-        if (!updatedStudent)
-            throw new BadRequestException(
-                this.badRequestMessage('password', 'changed'),
+        try {
+            return await this.prisma.student.update({
+                where,
+                data: { password: passwordHash },
+                select: this.studentSelect,
+            });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage('password', 'changed'),
             );
-
-        return updatedStudent;
+        }
     }
 
     async changeStudentState(params: {
@@ -195,29 +199,31 @@ export class StudentService implements StudentRepository {
 
         await this.getStudent(where);
 
-        const changedStudent = await this.prisma.student.update({
-            where,
-            data: { active },
-            select: this.studentSelect,
-        });
-
-        if (!changedStudent)
-            throw new BadRequestException(
-                this.badRequestMessage(
+        try {
+            return await this.prisma.student.update({
+                where,
+                data: { active },
+                select: this.studentSelect,
+            });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage(
                     'student',
                     active ? 'reactivated' : 'deactivated',
                 ),
             );
-
-        return changedStudent;
+        }
     }
 
     async deleteStudent(where: Prisma.StudentWhereUniqueInput): Promise<void> {
         await this.getStudent(where);
-        const deletedStudent = await this.prisma.student.delete({ where });
-        if (!deletedStudent)
-            throw new BadRequestException(
-                this.badRequestMessage('student', 'deleted'),
+
+        try {
+            await this.prisma.student.delete({ where });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage('student', 'deleted'),
             );
+        }
     }
 }

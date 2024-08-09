@@ -25,7 +25,7 @@ GET http://localhost:3000/routine/student/73a585fb-04ef-4815-bb3d-3982c0dd53f6
 ###
 
 # GET ROUTINE BY ID
-GET http://localhost:3000/routine/d6842d30-d8fd-40f3-8d67-6b2a50caaf3d
+GET http://localhost:3000/routine/d6842d30-d8fd-40f3-8d67-6b2a50caaf3c
 
 ###
 

@@ -1,8 +1,8 @@
 import {
     Injectable,
-    NotFoundException,
-    BadRequestException,
     ConflictException,
+    NotFoundException,
+    InternalServerErrorException,
 } from '@nestjs/common';
 import { RoutineRepository } from './routine.repository';
 import { PrismaService } from 'src/db/prisma.service';
@@ -36,19 +36,19 @@ export class RoutineService implements RoutineRepository {
         },
     };
 
-    private readonly badRequestMessage = (
-        subject: string,
-        adjective: string,
-    ): string => {
-        return `Something bad happened and the ${subject} was not ${adjective}.`;
-    };
     private readonly notFoundMessage = (
         subject: string,
         where: Prisma.RoutineWhereUniqueInput,
     ): string => {
-        return `${subject} ${Object.entries(where)
+        return `${subject} with ${Object.entries(where)
             .map(([key, value]) => `${key} ${value}`)
             .join(', ')} was not found.`;
+    };
+    private readonly errorMessage = (
+        subject: string,
+        adjective: string,
+    ): string => {
+        return `Something bad happened and the ${subject} was not ${adjective}.`;
     };
 
     async createRoutine(
@@ -71,16 +71,16 @@ export class RoutineService implements RoutineRepository {
                 this.notFoundMessage('Student', { id: studentId }),
             );
 
-        const createdRoutine = await this.prisma.routine.create({
-            data: { ...data, studentId },
-            select: this.selectRoutine,
-        });
-        if (!createdRoutine)
-            throw new BadRequestException(
-                this.badRequestMessage('routine', 'created'),
+        try {
+            return await this.prisma.routine.create({
+                data: { ...data, studentId },
+                select: this.selectRoutine,
+            });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage('routine', 'created'),
             );
-
-        return createdRoutine;
+        }
     }
 
     async getRoutines(params: {
@@ -91,31 +91,34 @@ export class RoutineService implements RoutineRepository {
     }): Promise<RoutineDTO[]> {
         const { skip, take, where, orderBy } = params;
 
-        const routinesFound = await this.prisma.routine.findMany({
-            skip,
-            take,
-            where,
-            orderBy,
-            select: this.selectRoutine,
-        });
-        if (!routinesFound)
-            throw new BadRequestException(
-                this.badRequestMessage('routines', 'found'),
+        try {
+            return await this.prisma.routine.findMany({
+                skip,
+                take,
+                where,
+                orderBy,
+                select: this.selectRoutine,
+            });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage('routines', 'found'),
             );
-
-        return routinesFound;
+        }
     }
 
     async getRoutine(
         where: Prisma.RoutineWhereUniqueInput,
     ): Promise<RoutineDTO> {
-        const routineFound = await this.prisma.routine.findUnique({
-            where,
-            select: this.selectRoutine,
-        });
-        if (!routineFound)
-            throw new NotFoundException(this.notFoundMessage('Routine', where));
-        return routineFound;
+        try {
+            const routineFound = await this.prisma.routine.findUnique({
+                where,
+                select: this.selectRoutine,
+            });
+            if (!routineFound) throw this.notFoundMessage('Routine', where);
+            return routineFound;
+        } catch (err) {
+            throw new NotFoundException(err);
+        }
     }
 
     async updateRoutine(params: {
@@ -126,25 +129,28 @@ export class RoutineService implements RoutineRepository {
 
         await this.getRoutine(where);
 
-        const updatedRoutine = await this.prisma.routine.update({
-            where,
-            data,
-            select: this.selectRoutine,
-        });
-        if (!updatedRoutine)
-            throw new BadRequestException(
-                this.badRequestMessage('routine', 'updated'),
+        try {
+            return await this.prisma.routine.update({
+                where,
+                data,
+                select: this.selectRoutine,
+            });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage('routine', 'updated'),
             );
-
-        return updatedRoutine;
+        }
     }
 
     async deleteRoutine(where: Prisma.RoutineWhereUniqueInput): Promise<void> {
         await this.getRoutine(where);
-        const deletedRoutine = await this.prisma.routine.delete({ where });
-        if (!deletedRoutine)
-            throw new BadRequestException(
-                this.badRequestMessage('routine', 'deleted'),
+
+        try {
+            await this.prisma.routine.delete({ where });
+        } catch (err) {
+            throw new InternalServerErrorException(
+                this.errorMessage('routine', 'deleted'),
             );
+        }
     }
 }
