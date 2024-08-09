@@ -1,14 +1,14 @@
-import { Course as CourseModel, College as CollegeModel } from '@prisma/client';
+import { Book as BookModel, College as CollegeModel } from '@prisma/client';
 
 type College = Pick<
     CollegeModel,
     'id' | 'name' | 'email' | 'phone' | 'address' | 'active'
 >;
 
-export class CourseDTO implements Omit<CourseModel, 'collegeId'> {
+export class BookDTO implements Omit<BookModel, 'collegeId'> {
     id: string;
     name: string;
-    period: string;
+    author: string;
     createdAt: Date;
     updatedAt: Date;
     college: College;

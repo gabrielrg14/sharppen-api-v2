@@ -1,0 +1,47 @@
+# CREATE BOOK
+POST http://localhost:3000/book
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
+Content-Type: application/json
+
+{
+    "name": "Name Test",
+    "author": "Author Test"
+}
+
+###
+
+# GET ALL BOOKS
+GET http://localhost:3000/book
+
+###
+
+# GET COLLEGE BOOKS
+GET http://localhost:3000/book?collegeId=808f7526-87f6-42fa-9f63-3a3ae23bdeb0
+
+###
+
+# GET STUDENT BOOKS
+GET http://localhost:3000/book?studentId=73a585fb-04ef-4815-bb3d-3982c0dd53f6
+
+###
+
+# GET BOOK BY ID
+GET http://localhost:3000/book/958d3e5c-261f-4d9d-8faa-07e493064288
+
+###
+
+# UPDATE BOOK BY ID
+PUT http://localhost:3000/book/958d3e5c-261f-4d9d-8faa-07e493064288
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
+Content-Type: application/json
+
+{
+    "name": "Name Test 2",
+    "author": "Author Test 2"
+}
+
+###
+
+# DELETE BOOK BY ID
+DELETE http://localhost:3000/book/958d3e5c-261f-4d9d-8faa-07e493064288
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
