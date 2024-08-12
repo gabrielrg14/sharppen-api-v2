@@ -7,6 +7,7 @@ import { FollowerModule } from './follower/follower.module';
 import { RoutineModule } from './routine/routine.module';
 import { CourseModule } from './course/course.module';
 import { BookModule } from './book/book.module';
+import { PostModule } from './post/post.module';
 
 @Module({
     imports: [
@@ -18,6 +19,7 @@ import { BookModule } from './book/book.module';
         RoutineModule,
         CourseModule,
         BookModule,
+        PostModule,
     ],
 })
 export class AppModule {}

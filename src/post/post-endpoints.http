@@ -1,0 +1,40 @@
+# CREATE POST
+POST http://localhost:3000/post
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
+Content-Type: application/json
+
+{
+    "content": "Content Test"
+}
+
+###
+
+# GET ALL POSTS
+GET http://localhost:3000/post
+
+###
+
+# GET COLLEGE POSTS
+GET http://localhost:3000/post?collegeId=808f7526-87f6-42fa-9f63-3a3ae23bdeb0
+
+###
+
+# GET POST BY ID
+GET http://localhost:3000/post/75d1c30a-73bc-4835-bd7b-8d75524e0515
+
+###
+
+# UPDATE POST BY ID
+PUT http://localhost:3000/post/75d1c30a-73bc-4835-bd7b-8d75524e0515
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
+Content-Type: application/json
+
+{
+    "content": "Content Test 2"
+}
+
+###
+
+# DELETE POST BY ID
+DELETE http://localhost:3000/post/75d1c30a-73bc-4835-bd7b-8d75524e0515
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}

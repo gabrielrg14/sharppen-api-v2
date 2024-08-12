@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client';
 export abstract class RoutineRepository {
     abstract createRoutine(
         data: CreateRoutineDTO,
-        collegeId: string,
+        studentId: string,
     ): Promise<RoutineDTO>;
 
     abstract getRoutines(params: {
