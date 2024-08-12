@@ -47,9 +47,9 @@ model College {
 model Follower {
   id        String  @id @default(uuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id])
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
   collegeId String
-  college   College @relation(fields: [collegeId], references: [id])
+  college   College @relation(fields: [collegeId], references: [id], onDelete: Cascade)
 }
 
 model Routine {
@@ -64,7 +64,7 @@ model Routine {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   studentId String   @unique
-  student   Student  @relation(fields: [studentId], references: [id])
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }
 
 model Book {
@@ -74,7 +74,7 @@ model Book {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   collegeId String
-  college   College  @relation(fields: [collegeId], references: [id])
+  college   College  @relation(fields: [collegeId], references: [id], onDelete: Cascade)
 }
 
 model Course {
@@ -84,7 +84,7 @@ model Course {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   collegeId String
-  college   College  @relation(fields: [collegeId], references: [id])
+  college   College  @relation(fields: [collegeId], references: [id], onDelete: Cascade)
 }
 
 model Post {
@@ -93,7 +93,7 @@ model Post {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   collegeId String
-  college   College    @relation(fields: [collegeId], references: [id])
+  college   College    @relation(fields: [collegeId], references: [id], onDelete: Cascade)
   reactions Reaction[]
   comments  Comment[]
 }
@@ -102,11 +102,11 @@ model Reaction {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   postId    String
-  post      Post     @relation(fields: [postId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   studentId String
-  student   Student  @relation(fields: [studentId], references: [id])
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   collegeId String
-  college   College  @relation(fields: [collegeId], references: [id])
+  college   College  @relation(fields: [collegeId], references: [id], onDelete: Cascade)
 }
 
 model Comment {
@@ -116,12 +116,12 @@ model Comment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   postId    String
-  post      Post     @relation(fields: [postId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   commentId String?  @unique
-  comment   Comment? @relation("ParentComment", fields: [commentId], references: [id])
+  comment   Comment? @relation("ParentComment", fields: [commentId], references: [id], onDelete: Cascade)
   parent    Comment? @relation("ParentComment")
   studentId String
-  student   Student  @relation(fields: [studentId], references: [id])
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   collegeId String
-  college   College  @relation(fields: [collegeId], references: [id])
+  college   College  @relation(fields: [collegeId], references: [id], onDelete: Cascade)
 }
