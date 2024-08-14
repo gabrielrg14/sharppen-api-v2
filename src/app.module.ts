@@ -8,6 +8,7 @@ import { RoutineModule } from './routine/routine.module';
 import { CourseModule } from './course/course.module';
 import { BookModule } from './book/book.module';
 import { PostModule } from './post/post.module';
+import { ReactionModule } from './reaction/reaction.module';
 
 @Module({
     imports: [
@@ -20,6 +21,7 @@ import { PostModule } from './post/post.module';
         CourseModule,
         BookModule,
         PostModule,
+        ReactionModule,
     ],
 })
 export class AppModule {}

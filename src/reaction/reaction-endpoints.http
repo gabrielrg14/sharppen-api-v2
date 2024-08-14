@@ -1,0 +1,62 @@
+# REACT OR UNREACT
+POST http://localhost:3000/reaction
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
+Content-Type: application/json
+
+{
+    "postId": "14673fe0-9711-4de5-9f64-4787a02f015b",
+    "studentId": "f5f65128-5ec5-4465-a239-f1dbe7787445"
+}
+
+###
+
+# CHECK IF REACTING
+GET http://localhost:3000/reaction/check
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
+Content-Type: application/json
+
+{
+    "postId": "14673fe0-9711-4de5-9f64-4787a02f015b",
+    "studentId": "f5f65128-5ec5-4465-a239-f1dbe7787445"
+}
+
+###
+
+# GET REACTION COUNT BY POST ID
+GET http://localhost:3000/reaction/count?postId=14673fe0-9711-4de5-9f64-4787a02f015b
+
+###
+
+# GET REACTION COUNT BY COMMENT ID
+GET http://localhost:3000/reaction/count?commentId=c495a07f-fb78-4a25-b6d6-9ae0a319eb66
+
+###
+
+# GET ALL REACTIONS
+GET http://localhost:3000/reaction
+
+###
+
+# GET REACTIONS BY POST ID
+GET http://localhost:3000/reaction?postId=14673fe0-9711-4de5-9f64-4787a02f015b
+
+###
+
+# GET REACTIONS BY COMMENT ID
+GET http://localhost:3000/reaction?commentId=c495a07f-fb78-4a25-b6d6-9ae0a319eb66
+
+###
+
+# GET REACTIONS BY STUDENT ID
+GET http://localhost:3000/reaction?studentId=f5f65128-5ec5-4465-a239-f1dbe7787445
+
+###
+
+# GET REACTIONS BY COLLEGE ID
+GET http://localhost:3000/reaction?collegeId=808f7526-87f6-42fa-9f63-3a3ae23bdeb0
+
+###
+
+# GET REACTION BY ID
+GET http://localhost:3000/reaction/7770e935-1df1-43dc-8553-f8eb23389de4
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}

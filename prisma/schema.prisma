@@ -101,27 +101,30 @@ model Post {
 model Reaction {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
-  postId    String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  studentId String
-  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  collegeId String
-  college   College  @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  postId    String?
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  commentId String?
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  studentId String?
+  student   Student? @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  collegeId String?
+  college   College? @relation(fields: [collegeId], references: [id], onDelete: Cascade)
 }
 
 model Comment {
-  id        String   @id @default(uuid())
+  id        String     @id @default(uuid())
   content   String
   userType  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   postId    String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  commentId String?  @unique
-  comment   Comment? @relation("ParentComment", fields: [commentId], references: [id], onDelete: Cascade)
-  parent    Comment? @relation("ParentComment")
+  post      Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  commentId String?    @unique
+  comment   Comment?   @relation("ParentComment", fields: [commentId], references: [id], onDelete: Cascade)
+  parent    Comment?   @relation("ParentComment")
   studentId String
-  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
   collegeId String
-  college   College  @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  college   College    @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  reactions Reaction[]
 }
