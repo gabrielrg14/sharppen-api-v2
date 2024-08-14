@@ -33,7 +33,7 @@ export class ReactionController {
     }
 
     @Get('/count')
-    getReactionCount(@Body() query: ReactionQueryParams): Promise<number> {
+    getReactionCount(@Query() query: ReactionQueryParams): Promise<number> {
         const where: Prisma.ReactionWhereInput = {};
 
         if (query.postId) where.postId = query.postId;

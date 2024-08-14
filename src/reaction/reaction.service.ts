@@ -175,7 +175,6 @@ export class ReactionService implements ReactionRepository {
         const { where } = params;
 
         try {
-            console.log(where);
             return await this.prisma.reaction.count({ where });
         } catch (err) {
             throw new InternalServerErrorException(
