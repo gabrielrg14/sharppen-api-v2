@@ -1,0 +1,56 @@
+# CREATE COMMENT
+POST http://localhost:3000/comment
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
+Content-Type: application/json
+
+{
+    "content": "Content Test",
+    "postId": "06bb13f3-9ade-4b7a-a21b-53b4edfb64c8"
+}
+
+###
+
+# GET ALL COMMENTS
+GET http://localhost:3000/comment
+
+###
+
+# GET COMMENTS BY POST ID
+GET http://localhost:3000/comment?postId=06bb13f3-9ade-4b7a-a21b-53b4edfb64c8
+
+###
+
+# GET COMMENTS BY COMMENT ID
+GET http://localhost:3000/comment?commentId=471148db-3582-4c6e-a58f-a7f62774ab81
+
+###
+
+# GET COMMENTS BY STUDENT ID
+GET http://localhost:3000/comment?studentId=0c5b46e0-955f-4aff-943f-6f6489cd66ea
+
+###
+
+# GET COMMENTS BY COLLEGE ID
+GET http://localhost:3000/comment?collegeId=3b767ab8-6c07-42dd-8e7c-344c0cd29e0b
+
+###
+
+# GET COMMENT BY ID
+GET http://localhost:3000/comment/471148db-3582-4c6e-a58f-a7f62774ab81
+
+###
+
+# UPDATE COMMENT BY ID
+PUT http://localhost:3000/comment/471148db-3582-4c6e-a58f-a7f62774ab81
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
+Content-Type: application/json
+
+{
+    "content": "Content Test 2"
+}
+
+###
+
+# DELETE COMMENT BY ID
+DELETE http://localhost:3000/comment/471148db-3582-4c6e-a58f-a7f62774ab81
+Authorization: Bearer {{$dotenv AUTH_TOKEN}}
