@@ -4,8 +4,7 @@ Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 Content-Type: application/json
 
 {
-    "postId": "14673fe0-9711-4de5-9f64-4787a02f015b",
-    "studentId": "f5f65128-5ec5-4465-a239-f1dbe7787445"
+    "postId": "06bb13f3-9ade-4b7a-a21b-53b4edfb64c8"
 }
 
 ###
@@ -16,14 +15,13 @@ Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 Content-Type: application/json
 
 {
-    "postId": "14673fe0-9711-4de5-9f64-4787a02f015b",
-    "studentId": "f5f65128-5ec5-4465-a239-f1dbe7787445"
+    "postId": "06bb13f3-9ade-4b7a-a21b-53b4edfb64c8"
 }
 
 ###
 
 # GET REACTION COUNT BY POST ID
-GET http://localhost:3000/reaction/count?postId=14673fe0-9711-4de5-9f64-4787a02f015b
+GET http://localhost:3000/reaction/count?postId=06bb13f3-9ade-4b7a-a21b-53b4edfb64c8
 
 ###
 
@@ -38,7 +36,7 @@ GET http://localhost:3000/reaction
 ###
 
 # GET REACTIONS BY POST ID
-GET http://localhost:3000/reaction?postId=14673fe0-9711-4de5-9f64-4787a02f015b
+GET http://localhost:3000/reaction?postId=06bb13f3-9ade-4b7a-a21b-53b4edfb64c8
 
 ###
 

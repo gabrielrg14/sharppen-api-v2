@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client';
 export abstract class CommentRepository {
     abstract createComment(
         data: CreateCommentDTO,
-        collegeId: string,
+        subjectId: string,
     ): Promise<CommentDTO>;
 
     abstract getComments(params: {

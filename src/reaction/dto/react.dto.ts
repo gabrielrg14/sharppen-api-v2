@@ -8,12 +8,4 @@ export class ReactDTO {
     @IsOptional()
     @IsUUID()
     commentId: string;
-
-    @IsOptional()
-    @IsUUID()
-    studentId: string;
-
-    @IsOptional()
-    @IsUUID()
-    collegeId: string;
 }

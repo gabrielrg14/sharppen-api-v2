@@ -5,6 +5,7 @@ import {
     HttpCode,
     HttpStatus,
     Body,
+    Request,
     Query,
     Param,
     Post,
@@ -13,6 +14,7 @@ import {
 import { ReactionService } from './reaction.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ReactionDTO, ReactionQueryParams, ReactDTO } from './dto';
+import { RequestTokenDTO } from 'src/auth/dto';
 import { Prisma } from '@prisma/client';
 
 @Controller('reaction')
@@ -22,14 +24,20 @@ export class ReactionController {
     @Post()
     @UseGuards(AuthGuard)
     @HttpCode(HttpStatus.OK)
-    reactOrUnreact(@Body() reactData: ReactDTO): Promise<void> {
-        return this.reactionService.reactUnreact(reactData);
+    reactOrUnreact(
+        @Body() reactData: ReactDTO,
+        @Request() req: RequestTokenDTO,
+    ): Promise<void> {
+        return this.reactionService.reactUnreact(reactData, req.token?.sub);
     }
 
     @Get('/check')
     @UseGuards(AuthGuard)
-    checkIfReacting(@Body() reactData: ReactDTO): Promise<boolean> {
-        return this.reactionService.checkReaction(reactData);
+    checkIfReacting(
+        @Body() reactData: ReactDTO,
+        @Request() req: RequestTokenDTO,
+    ): Promise<boolean> {
+        return this.reactionService.checkReaction(reactData, req.token?.sub);
     }
 
     @Get('/count')

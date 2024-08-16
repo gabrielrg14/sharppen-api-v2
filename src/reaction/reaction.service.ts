@@ -41,7 +41,7 @@ export class ReactionService implements ReactionRepository {
 
     private readonly notFoundMessage = (
         subject: string,
-        where: Prisma.ReactionWhereUniqueInput,
+        where: Prisma.ReactionWhereInput,
     ): string => {
         return `${subject} with ${Object.entries(where)
             .map(([key, value]) => `${key} ${value}`)
@@ -54,14 +54,26 @@ export class ReactionService implements ReactionRepository {
         return `Something bad happened and the ${subject} was not ${adjective}.`;
     };
 
-    async reactUnreact(data: ReactDTO): Promise<void> {
-        const { postId, commentId, studentId, collegeId } = data;
+    async reactUnreact(data: ReactDTO, subjectId: string): Promise<void> {
+        const { postId, commentId } = data;
+        const subjects = {
+            postId: null,
+            commentId: null,
+            studentId: null,
+            collegeId: null,
+        };
+
+        if (!postId && !commentId)
+            throw new NotFoundException(
+                this.notFoundMessage('Post or Comment', { postId, commentId }),
+            );
 
         if (postId) {
             const post = await this.prisma.post.findUnique({
                 where: { id: postId },
             });
-            if (!post)
+            if (post) subjects.postId = post.id;
+            else
                 throw new NotFoundException(
                     this.notFoundMessage('Post', { id: postId }),
                 );
@@ -71,35 +83,31 @@ export class ReactionService implements ReactionRepository {
             const comment = await this.prisma.comment.findUnique({
                 where: { id: commentId },
             });
-            if (!comment)
+            if (comment) subjects.commentId = comment.id;
+            else
                 throw new NotFoundException(
                     this.notFoundMessage('Comment', { id: commentId }),
                 );
         }
 
-        if (studentId) {
-            const student = await this.prisma.student.findUnique({
-                where: { id: studentId },
-            });
-            if (!student)
-                throw new NotFoundException(
-                    this.notFoundMessage('Student', { id: studentId }),
-                );
-        }
+        const student = await this.prisma.student.findUnique({
+            where: { id: subjectId },
+        });
+        if (student) subjects.studentId = student.id;
 
-        if (collegeId) {
-            const college = await this.prisma.college.findUnique({
-                where: { id: collegeId },
-            });
-            if (!college)
-                throw new NotFoundException(
-                    this.notFoundMessage('College', { id: collegeId }),
-                );
-        }
+        const college = await this.prisma.college.findUnique({
+            where: { id: subjectId },
+        });
+        if (college) subjects.collegeId = college.id;
+
+        if (!student && !college)
+            throw new NotFoundException(
+                this.notFoundMessage('Student or College', { id: subjectId }),
+            );
 
         try {
             const reactionFound = await this.prisma.reaction.findFirst({
-                where: { postId, commentId, studentId, collegeId },
+                where: { ...subjects },
             });
 
             if (reactionFound) {
@@ -107,21 +115,33 @@ export class ReactionService implements ReactionRepository {
                     where: { id: reactionFound.id },
                 });
             } else {
-                await this.prisma.reaction.create({ data });
+                await this.prisma.reaction.create({ data: subjects });
             }
         } catch (err) {
             throw new InternalServerErrorException();
         }
     }
 
-    async checkReaction(data: ReactDTO): Promise<boolean> {
-        const { postId, commentId, studentId, collegeId } = data;
+    async checkReaction(data: ReactDTO, subjectId: string): Promise<boolean> {
+        const { postId, commentId } = data;
+        const subjects = {
+            postId: null,
+            commentId: null,
+            studentId: null,
+            collegeId: null,
+        };
+
+        if (!postId && !commentId)
+            throw new NotFoundException(
+                this.notFoundMessage('Post or Comment', { postId, commentId }),
+            );
 
         if (postId) {
             const post = await this.prisma.post.findUnique({
                 where: { id: postId },
             });
-            if (!post)
+            if (post) subjects.postId = post.id;
+            else
                 throw new NotFoundException(
                     this.notFoundMessage('Post', { id: postId }),
                 );
@@ -131,35 +151,31 @@ export class ReactionService implements ReactionRepository {
             const comment = await this.prisma.comment.findUnique({
                 where: { id: commentId },
             });
-            if (!comment)
+            if (comment) subjects.commentId = comment.id;
+            else
                 throw new NotFoundException(
                     this.notFoundMessage('Comment', { id: commentId }),
                 );
         }
 
-        if (studentId) {
-            const student = await this.prisma.student.findUnique({
-                where: { id: studentId },
-            });
-            if (!student)
-                throw new NotFoundException(
-                    this.notFoundMessage('Student', { id: studentId }),
-                );
-        }
+        const student = await this.prisma.student.findUnique({
+            where: { id: subjectId },
+        });
+        if (student) subjects.studentId = student.id;
 
-        if (collegeId) {
-            const college = await this.prisma.college.findUnique({
-                where: { id: collegeId },
-            });
-            if (!college)
-                throw new NotFoundException(
-                    this.notFoundMessage('College', { id: collegeId }),
-                );
-        }
+        const college = await this.prisma.college.findUnique({
+            where: { id: subjectId },
+        });
+        if (college) subjects.collegeId = college.id;
+
+        if (!student && !college)
+            throw new NotFoundException(
+                this.notFoundMessage('Student or College', { id: subjectId }),
+            );
 
         try {
             const reactionFound = await this.prisma.reaction.findFirst({
-                where: { postId, commentId, studentId, collegeId },
+                where: { ...subjects },
             });
             return reactionFound ? true : false;
         } catch (err) {

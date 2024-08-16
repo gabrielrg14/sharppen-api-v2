@@ -49,7 +49,7 @@ export class CommentService implements CommentRepository {
 
     private readonly notFoundMessage = (
         subject: string,
-        where: Prisma.CommentWhereUniqueInput,
+        where: Prisma.CommentWhereInput,
     ): string => {
         return `${subject} with ${Object.entries(where)
             .map(([key, value]) => `${key} ${value}`)
@@ -102,7 +102,7 @@ export class CommentService implements CommentRepository {
 
         if (!student && !college)
             throw new NotFoundException(
-                this.notFoundMessage('Subject', { id: subjectId }),
+                this.notFoundMessage('Student or College', { id: subjectId }),
             );
 
         try {
