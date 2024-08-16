@@ -4,7 +4,7 @@ import {
     ParseUUIDPipe,
     HttpCode,
     HttpStatus,
-    Body,
+    Request,
     Query,
     Param,
     Post,
@@ -12,24 +12,31 @@ import {
 } from '@nestjs/common';
 import { FollowerService } from './follower.service';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { FollowerDTO, FollowerQueryParams, FollowDTO } from './dto';
+import { FollowerDTO, FollowerQueryParams } from './dto';
+import { RequestTokenDTO } from 'src/auth/dto';
 import { Prisma } from '@prisma/client';
 
 @Controller('follower')
 export class FollowerController {
     constructor(private readonly followerService: FollowerService) {}
 
-    @Post()
+    @Post('/:uuid')
     @UseGuards(AuthGuard)
     @HttpCode(HttpStatus.OK)
-    followOrUnfollow(@Body() followData: FollowDTO): Promise<void> {
-        return this.followerService.followUnfollow(followData);
+    followOrUnfollow(
+        @Param('uuid', ParseUUIDPipe) collegeId: string,
+        @Request() req: RequestTokenDTO,
+    ): Promise<void> {
+        return this.followerService.followUnfollow(req.token?.sub, collegeId);
     }
 
-    @Get('/check')
+    @Get('/check/:uuid')
     @UseGuards(AuthGuard)
-    checkIfFollowing(@Body() followData: FollowDTO): Promise<boolean> {
-        return this.followerService.checkFollower(followData);
+    checkIfFollowing(
+        @Param('uuid', ParseUUIDPipe) collegeId: string,
+        @Request() req: RequestTokenDTO,
+    ): Promise<boolean> {
+        return this.followerService.checkFollower(req.token?.sub, collegeId);
     }
 
     @Get()

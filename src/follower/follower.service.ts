@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { FollowerRepository } from './follower.repository';
 import { PrismaService } from 'src/db/prisma.service';
-import { FollowDTO, FollowerDTO } from './dto';
+import { FollowerDTO } from './dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -51,9 +51,7 @@ export class FollowerService implements FollowerRepository {
         return `Something bad happened and the ${subject} was not ${adjective}.`;
     };
 
-    async followUnfollow(data: FollowDTO): Promise<void> {
-        const { studentId, collegeId } = data;
-
+    async followUnfollow(studentId: string, collegeId: string): Promise<void> {
         const student = await this.prisma.student.findUnique({
             where: { id: studentId },
         });
@@ -80,16 +78,19 @@ export class FollowerService implements FollowerRepository {
                     where: { id: followerFound.id },
                 });
             } else {
-                await this.prisma.follower.create({ data });
+                await this.prisma.follower.create({
+                    data: { studentId, collegeId },
+                });
             }
         } catch (err) {
             throw new InternalServerErrorException();
         }
     }
 
-    async checkFollower(data: FollowDTO): Promise<boolean> {
-        const { studentId, collegeId } = data;
-
+    async checkFollower(
+        studentId: string,
+        collegeId: string,
+    ): Promise<boolean> {
         const student = await this.prisma.student.findUnique({
             where: { id: studentId },
         });

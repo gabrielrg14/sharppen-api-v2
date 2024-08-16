@@ -1,24 +1,12 @@
 # FOLLOW OR UNFOLLOW
-POST http://localhost:3000/follower
+POST http://localhost:3000/follower/3b767ab8-6c07-42dd-8e7c-344c0cd29e0b
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
-Content-Type: application/json
-
-{
-    "studentId": "73a585fb-04ef-4815-bb3d-3982c0dd53f6",
-    "collegeId": "808f7526-87f6-42fa-9f63-3a3ae23bdeb0"
-}
 
 ###
 
 # CHECK IF FOLLOWING
-GET http://localhost:3000/follower/check
+GET http://localhost:3000/follower/check/3b767ab8-6c07-42dd-8e7c-344c0cd29e0b
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
-Content-Type: application/json
-
-{
-    "studentId": "73a585fb-04ef-4815-bb3d-3982c0dd53f6",
-    "collegeId": "808f7526-87f6-42fa-9f63-3a3ae23bdeb0"
-}
 
 ###
 
@@ -28,15 +16,15 @@ GET http://localhost:3000/follower
 ###
 
 # GET FOLLOWERS BY COLLEGE ID
-GET http://localhost:3000/follower?collegeId=808f7526-87f6-42fa-9f63-3a3ae23bdeb0
+GET http://localhost:3000/follower?collegeId=3b767ab8-6c07-42dd-8e7c-344c0cd29e0b
 
 ###
 
 # GET FOLLOWERS BY STUDENT ID
-GET http://localhost:3000/follower?studentId=73a585fb-04ef-4815-bb3d-3982c0dd53f6
+GET http://localhost:3000/follower?studentId=0c5b46e0-955f-4aff-943f-6f6489cd66ea
 
 ###
 
 # GET FOLLOWER BY ID
-GET http://localhost:3000/follower/fe4d8e04-8ace-4193-b4ce-c8c3704db574
+GET http://localhost:3000/follower/11b32fb8-4c6a-4991-b4c5-78b4c7f564b7
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
