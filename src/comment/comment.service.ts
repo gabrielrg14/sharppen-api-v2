@@ -5,12 +5,20 @@ import {
 } from '@nestjs/common';
 import { CommentRepository } from './comment.repository';
 import { PrismaService } from 'src/db/prisma.service';
+import { StudentService } from 'src/student/student.service';
+import { CollegeService } from 'src/college/college.service';
+import { PostService } from 'src/post/post.service';
 import { CreateCommentDTO, CommentDTO, UpdateCommentDTO } from './dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CommentService implements CommentRepository {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly studentService: StudentService,
+        private readonly collegeService: CollegeService,
+        private readonly postService: PostService,
+    ) {}
 
     private readonly selectComment = {
         id: true,
@@ -72,31 +80,17 @@ export class CommentService implements CommentRepository {
             collegeId: null,
         };
 
-        const post = await this.prisma.post.findUnique({
-            where: { id: postId },
-        });
-        if (!post)
-            throw new NotFoundException(
-                this.notFoundMessage('Post', { id: postId }),
-            );
+        await this.postService.getUniquePost({ id: postId });
 
-        if (commentId) {
-            const comment = await this.prisma.comment.findUnique({
-                where: { id: commentId },
-            });
-            if (!comment)
-                throw new NotFoundException(
-                    this.notFoundMessage('Comment', { id: commentId }),
-                );
-        }
+        if (commentId) await this.getUniqueComment({ id: commentId });
 
-        const student = await this.prisma.student.findUnique({
-            where: { id: subjectId },
+        const student = await this.studentService.getFirstStudent({
+            id: subjectId,
         });
         if (student) subject.studentId = student.id;
 
-        const college = await this.prisma.college.findUnique({
-            where: { id: subjectId },
+        const college = await this.collegeService.getFirstCollege({
+            id: subjectId,
         });
         if (college) subject.collegeId = college.id;
 
@@ -140,7 +134,7 @@ export class CommentService implements CommentRepository {
         }
     }
 
-    async getComment(
+    async getUniqueComment(
         where: Prisma.CommentWhereUniqueInput,
     ): Promise<CommentDTO> {
         try {
@@ -155,13 +149,22 @@ export class CommentService implements CommentRepository {
         }
     }
 
+    async getFirstComment(
+        where: Prisma.CommentWhereInput,
+    ): Promise<CommentDTO> {
+        return await this.prisma.comment.findFirst({
+            where,
+            select: this.selectComment,
+        });
+    }
+
     async updateComment(params: {
         where: Prisma.CommentWhereUniqueInput;
         data: UpdateCommentDTO;
     }): Promise<CommentDTO> {
         const { where, data } = params;
 
-        await this.getComment(where);
+        await this.getUniqueComment(where);
 
         try {
             return await this.prisma.comment.update({
@@ -177,7 +180,7 @@ export class CommentService implements CommentRepository {
     }
 
     async deleteComment(where: Prisma.CommentWhereUniqueInput): Promise<void> {
-        await this.getComment(where);
+        await this.getUniqueComment(where);
 
         try {
             await this.prisma.comment.delete({ where });

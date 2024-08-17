@@ -1,16 +1,27 @@
 import {
     Injectable,
+    BadRequestException,
     NotFoundException,
     InternalServerErrorException,
 } from '@nestjs/common';
 import { ReactionRepository } from './reaction.repository';
 import { PrismaService } from 'src/db/prisma.service';
+import { StudentService } from 'src/student/student.service';
+import { CollegeService } from 'src/college/college.service';
+import { PostService } from 'src/post/post.service';
+import { CommentService } from 'src/comment/comment.service';
 import { ReactionDTO, ReactDTO } from './dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ReactionService implements ReactionRepository {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly studentService: StudentService,
+        private readonly collegeService: CollegeService,
+        private readonly postService: PostService,
+        private readonly commentService: CommentService,
+    ) {}
 
     private readonly selectReaction = {
         id: true,
@@ -64,39 +75,29 @@ export class ReactionService implements ReactionRepository {
         };
 
         if (!postId && !commentId)
-            throw new NotFoundException(
-                this.notFoundMessage('Post or Comment', { postId, commentId }),
+            throw new BadRequestException(
+                'At least one post or comment ID required.',
             );
 
         if (postId) {
-            const post = await this.prisma.post.findUnique({
-                where: { id: postId },
-            });
-            if (post) subjects.postId = post.id;
-            else
-                throw new NotFoundException(
-                    this.notFoundMessage('Post', { id: postId }),
-                );
+            const post = await this.postService.getUniquePost({ id: postId });
+            subjects.postId = post.id;
         }
 
         if (commentId) {
-            const comment = await this.prisma.comment.findUnique({
-                where: { id: commentId },
+            const comment = await this.commentService.getUniqueComment({
+                id: commentId,
             });
-            if (comment) subjects.commentId = comment.id;
-            else
-                throw new NotFoundException(
-                    this.notFoundMessage('Comment', { id: commentId }),
-                );
+            subjects.commentId = comment.id;
         }
 
-        const student = await this.prisma.student.findUnique({
-            where: { id: subjectId },
+        const student = await this.studentService.getFirstStudent({
+            id: subjectId,
         });
         if (student) subjects.studentId = student.id;
 
-        const college = await this.prisma.college.findUnique({
-            where: { id: subjectId },
+        const college = await this.collegeService.getFirstCollege({
+            id: subjectId,
         });
         if (college) subjects.collegeId = college.id;
 
@@ -106,10 +107,7 @@ export class ReactionService implements ReactionRepository {
             );
 
         try {
-            const reactionFound = await this.prisma.reaction.findFirst({
-                where: { ...subjects },
-            });
-
+            const reactionFound = await this.getFirstReaction({ ...subjects });
             if (reactionFound) {
                 await this.prisma.reaction.delete({
                     where: { id: reactionFound.id },
@@ -118,7 +116,7 @@ export class ReactionService implements ReactionRepository {
                 await this.prisma.reaction.create({ data: subjects });
             }
         } catch (err) {
-            throw new InternalServerErrorException();
+            throw err;
         }
     }
 
@@ -137,34 +135,24 @@ export class ReactionService implements ReactionRepository {
             );
 
         if (postId) {
-            const post = await this.prisma.post.findUnique({
-                where: { id: postId },
-            });
-            if (post) subjects.postId = post.id;
-            else
-                throw new NotFoundException(
-                    this.notFoundMessage('Post', { id: postId }),
-                );
+            const post = await this.postService.getUniquePost({ id: postId });
+            subjects.postId = post.id;
         }
 
         if (commentId) {
-            const comment = await this.prisma.comment.findUnique({
-                where: { id: commentId },
+            const comment = await this.commentService.getUniqueComment({
+                id: commentId,
             });
-            if (comment) subjects.commentId = comment.id;
-            else
-                throw new NotFoundException(
-                    this.notFoundMessage('Comment', { id: commentId }),
-                );
+            subjects.commentId = comment.id;
         }
 
-        const student = await this.prisma.student.findUnique({
-            where: { id: subjectId },
+        const student = await this.studentService.getFirstStudent({
+            id: subjectId,
         });
         if (student) subjects.studentId = student.id;
 
-        const college = await this.prisma.college.findUnique({
-            where: { id: subjectId },
+        const college = await this.collegeService.getFirstCollege({
+            id: subjectId,
         });
         if (college) subjects.collegeId = college.id;
 
@@ -174,9 +162,7 @@ export class ReactionService implements ReactionRepository {
             );
 
         try {
-            const reactionFound = await this.prisma.reaction.findFirst({
-                where: { ...subjects },
-            });
+            const reactionFound = await this.getFirstReaction({ ...subjects });
             return reactionFound ? true : false;
         } catch (err) {
             throw new InternalServerErrorException(
@@ -216,7 +202,7 @@ export class ReactionService implements ReactionRepository {
         }
     }
 
-    async getReaction(
+    async getUniqueReaction(
         where: Prisma.ReactionWhereUniqueInput,
     ): Promise<ReactionDTO> {
         try {
@@ -229,5 +215,14 @@ export class ReactionService implements ReactionRepository {
         } catch (err) {
             throw new NotFoundException(err);
         }
+    }
+
+    async getFirstReaction(
+        where: Prisma.ReactionWhereInput,
+    ): Promise<ReactionDTO> {
+        return await this.prisma.reaction.findFirst({
+            where,
+            select: this.selectReaction,
+        });
     }
 }

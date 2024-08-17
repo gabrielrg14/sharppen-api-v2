@@ -46,7 +46,7 @@ export class PostController {
     getPostById(
         @Param('uuid', ParseUUIDPipe) postId: string,
     ): Promise<PostDTO> {
-        return this.postService.getPost({ id: postId });
+        return this.postService.getUniquePost({ id: postId });
     }
 
     @Put('/:uuid')

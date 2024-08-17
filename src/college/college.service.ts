@@ -55,9 +55,7 @@ export class CollegeService implements CollegeRepository {
     async createCollege(data: CreateCollegeDTO): Promise<CollegeDTO> {
         const { email, password, passwordConfirmation } = data;
 
-        const college = await this.prisma.college.findUnique({
-            where: { email },
-        });
+        const college = await this.getFirstCollege({ email });
         if (college) throw new ConflictException(this.conflictMessage(email));
 
         if (password !== passwordConfirmation)
@@ -107,7 +105,7 @@ export class CollegeService implements CollegeRepository {
         }
     }
 
-    async getCollege(
+    async getUniqueCollege(
         where: Prisma.CollegeWhereUniqueInput,
     ): Promise<CollegeDTO> {
         try {
@@ -122,6 +120,15 @@ export class CollegeService implements CollegeRepository {
         }
     }
 
+    async getFirstCollege(
+        where: Prisma.CollegeWhereInput,
+    ): Promise<CollegeDTO> {
+        return await this.prisma.college.findFirst({
+            where,
+            select: this.collegeSelect,
+        });
+    }
+
     async updateCollege(params: {
         where: Prisma.CollegeWhereUniqueInput;
         data: UpdateCollegeDTO;
@@ -129,12 +136,10 @@ export class CollegeService implements CollegeRepository {
         const { where, data } = params;
         const { email, testDate } = data;
 
-        const college = await this.getCollege(where);
+        const college = await this.getUniqueCollege(where);
 
         if (email) {
-            const collegeEmail = await this.prisma.college.findUnique({
-                where: { email },
-            });
+            const collegeEmail = await this.getFirstCollege({ email });
             if (collegeEmail && collegeEmail.id !== college.id)
                 throw new ConflictException(this.conflictMessage(email));
         }
@@ -180,10 +185,9 @@ export class CollegeService implements CollegeRepository {
         );
 
         try {
-            return await this.prisma.college.update({
+            return await this.updateCollege({
                 where,
                 data: { password: passwordHash },
-                select: this.collegeSelect,
             });
         } catch (err) {
             throw new InternalServerErrorException(
@@ -192,19 +196,18 @@ export class CollegeService implements CollegeRepository {
         }
     }
 
-    async changeCollegeState(params: {
+    async updateCollegeState(params: {
         where: Prisma.CollegeWhereUniqueInput;
         active: boolean;
     }): Promise<CollegeDTO> {
         const { where, active } = params;
 
-        await this.getCollege(where);
+        await this.getUniqueCollege(where);
 
         try {
-            return await this.prisma.college.update({
+            return await this.updateCollege({
                 where,
                 data: { active },
-                select: this.collegeSelect,
             });
         } catch (err) {
             throw new InternalServerErrorException(
@@ -217,7 +220,7 @@ export class CollegeService implements CollegeRepository {
     }
 
     async deleteCollege(where: Prisma.CollegeWhereUniqueInput): Promise<void> {
-        await this.getCollege(where);
+        await this.getUniqueCollege(where);
 
         try {
             await this.prisma.college.delete({ where });

@@ -14,8 +14,12 @@ export abstract class RoutineRepository {
         orderBy?: Prisma.RoutineOrderByWithRelationInput;
     }): Promise<RoutineDTO[]>;
 
-    abstract getRoutine(
+    abstract getUniqueRoutine(
         where: Prisma.RoutineWhereUniqueInput,
+    ): Promise<RoutineDTO>;
+
+    abstract getFirstRoutine(
+        where: Prisma.RoutineWhereInput,
     ): Promise<RoutineDTO>;
 
     abstract updateRoutine(params: {

@@ -51,7 +51,7 @@ export class CourseController {
     getCourseById(
         @Param('uuid', ParseUUIDPipe) courseId: string,
     ): Promise<CourseDTO> {
-        return this.courseService.getCourse({ id: courseId });
+        return this.courseService.getUniqueCourse({ id: courseId });
     }
 
     @Put('/:uuid')

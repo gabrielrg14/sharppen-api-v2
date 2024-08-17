@@ -14,7 +14,11 @@ export abstract class ReactionRepository {
         where?: Prisma.ReactionWhereInput;
     }): Promise<ReactionDTO[]>;
 
-    abstract getReaction(
+    abstract getUniqueReaction(
         where: Prisma.ReactionWhereUniqueInput,
+    ): Promise<ReactionDTO>;
+
+    abstract getFirstReaction(
+        where: Prisma.ReactionWhereInput,
     ): Promise<ReactionDTO>;
 }

@@ -57,7 +57,7 @@ export class CommentController {
     getCommentById(
         @Param('uuid', ParseUUIDPipe) commentId: string,
     ): Promise<CommentDTO> {
-        return this.commentService.getComment({ id: commentId });
+        return this.commentService.getUniqueComment({ id: commentId });
     }
 
     @Put('/:uuid')

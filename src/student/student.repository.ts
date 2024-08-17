@@ -15,8 +15,12 @@ export abstract class StudentRepository {
         orderBy?: Prisma.StudentOrderByWithRelationInput;
     }): Promise<StudentDTO[]>;
 
-    abstract getStudent(
+    abstract getUniqueStudent(
         where: Prisma.StudentWhereUniqueInput,
+    ): Promise<StudentDTO>;
+
+    abstract getFirstStudent(
+        where: Prisma.StudentWhereInput,
     ): Promise<StudentDTO>;
 
     abstract updateStudent(params: {
@@ -29,7 +33,7 @@ export abstract class StudentRepository {
         data: UpdateStudentPasswordDTO;
     }): Promise<StudentDTO>;
 
-    abstract changeStudentState(params: {
+    abstract updateStudentState(params: {
         where: Prisma.StudentWhereUniqueInput;
         active: boolean;
     }): Promise<StudentDTO>;

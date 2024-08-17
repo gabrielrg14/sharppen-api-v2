@@ -5,12 +5,16 @@ import {
 } from '@nestjs/common';
 import { PostRepository } from './post.repository';
 import { PrismaService } from 'src/db/prisma.service';
+import { CollegeService } from 'src/college/college.service';
 import { CreatePostDTO, PostDTO, UpdatePostDTO } from './dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class PostService implements PostRepository {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly collegeService: CollegeService,
+    ) {}
 
     private readonly selectPost = {
         id: true,
@@ -51,13 +55,7 @@ export class PostService implements PostRepository {
     };
 
     async createPost(data: CreatePostDTO, collegeId: string): Promise<PostDTO> {
-        const college = await this.prisma.college.findUnique({
-            where: { id: collegeId },
-        });
-        if (!college)
-            throw new NotFoundException(
-                this.notFoundMessage('College', { id: collegeId }),
-            );
+        await this.collegeService.getUniqueCollege({ id: collegeId });
 
         try {
             return await this.prisma.post.create({
@@ -94,7 +92,7 @@ export class PostService implements PostRepository {
         }
     }
 
-    async getPost(where: Prisma.PostWhereUniqueInput): Promise<PostDTO> {
+    async getUniquePost(where: Prisma.PostWhereUniqueInput): Promise<PostDTO> {
         try {
             const postFound = await this.prisma.post.findUnique({
                 where,
@@ -107,13 +105,20 @@ export class PostService implements PostRepository {
         }
     }
 
+    async getFirstPost(where: Prisma.PostWhereInput): Promise<PostDTO> {
+        return await this.prisma.post.findFirst({
+            where,
+            select: this.selectPost,
+        });
+    }
+
     async updatePost(params: {
         where: Prisma.PostWhereUniqueInput;
         data: UpdatePostDTO;
     }): Promise<PostDTO> {
         const { where, data } = params;
 
-        await this.getPost(where);
+        await this.getUniquePost(where);
 
         try {
             return await this.prisma.post.update({
@@ -129,7 +134,7 @@ export class PostService implements PostRepository {
     }
 
     async deletePost(where: Prisma.PostWhereUniqueInput): Promise<void> {
-        await this.getPost(where);
+        await this.getUniquePost(where);
 
         try {
             await this.prisma.post.delete({ where });

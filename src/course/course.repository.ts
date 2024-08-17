@@ -14,9 +14,11 @@ export abstract class CourseRepository {
         orderBy?: Prisma.CourseOrderByWithRelationInput;
     }): Promise<CourseDTO[]>;
 
-    abstract getCourse(
+    abstract getUniqueCourse(
         where: Prisma.CourseWhereUniqueInput,
     ): Promise<CourseDTO>;
+
+    abstract getFirstCourse(where: Prisma.CourseWhereInput): Promise<CourseDTO>;
 
     abstract updateCourse(params: {
         where: Prisma.CourseWhereUniqueInput;

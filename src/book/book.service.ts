@@ -5,12 +5,18 @@ import {
 } from '@nestjs/common';
 import { BookRepository } from './book.repository';
 import { PrismaService } from 'src/db/prisma.service';
+import { StudentService } from 'src/student/student.service';
+import { CollegeService } from 'src/college/college.service';
 import { BookDTO, CreateBookDTO, UpdateBookDTO } from './dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class BookService implements BookRepository {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly studentService: StudentService,
+        private readonly collegeService: CollegeService,
+    ) {}
 
     private readonly selectBook = {
         id: true,
@@ -46,13 +52,7 @@ export class BookService implements BookRepository {
     };
 
     async createBook(data: CreateBookDTO, collegeId: string): Promise<BookDTO> {
-        const college = await this.prisma.college.findUnique({
-            where: { id: collegeId },
-        });
-        if (!college)
-            throw new NotFoundException(
-                this.notFoundMessage('College', { id: collegeId }),
-            );
+        await this.collegeService.getUniqueCollege({ id: collegeId });
 
         try {
             return await this.prisma.book.create({
@@ -90,13 +90,7 @@ export class BookService implements BookRepository {
     }
 
     async getBooksFromFollowedColleges(studentId: string): Promise<BookDTO[]> {
-        const student = await this.prisma.student.findUnique({
-            where: { id: studentId },
-        });
-        if (!student)
-            throw new NotFoundException(
-                this.notFoundMessage('Student', { id: studentId }),
-            );
+        await this.studentService.getUniqueStudent({ id: studentId });
 
         try {
             const collegesFollowed = await this.prisma.follower.findMany({
@@ -122,7 +116,7 @@ export class BookService implements BookRepository {
         }
     }
 
-    async getBook(where: Prisma.BookWhereUniqueInput): Promise<BookDTO> {
+    async getUniqueBook(where: Prisma.BookWhereUniqueInput): Promise<BookDTO> {
         try {
             const bookFound = await this.prisma.book.findUnique({
                 where,
@@ -135,13 +129,20 @@ export class BookService implements BookRepository {
         }
     }
 
+    async getFirstBook(where: Prisma.BookWhereInput): Promise<BookDTO> {
+        return await this.prisma.book.findFirst({
+            where,
+            select: this.selectBook,
+        });
+    }
+
     async updateBook(params: {
         where: Prisma.BookWhereUniqueInput;
         data: UpdateBookDTO;
     }): Promise<BookDTO> {
         const { where, data } = params;
 
-        await this.getBook(where);
+        await this.getUniqueBook(where);
 
         try {
             return await this.prisma.book.update({
@@ -157,7 +158,7 @@ export class BookService implements BookRepository {
     }
 
     async deleteBook(where: Prisma.BookWhereUniqueInput): Promise<void> {
-        await this.getBook(where);
+        await this.getUniqueBook(where);
 
         try {
             await this.prisma.book.delete({ where });

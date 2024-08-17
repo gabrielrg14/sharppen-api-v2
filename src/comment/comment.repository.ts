@@ -14,8 +14,12 @@ export abstract class CommentRepository {
         orderBy?: Prisma.CommentOrderByWithRelationInput;
     }): Promise<CommentDTO[]>;
 
-    abstract getComment(
+    abstract getUniqueComment(
         where: Prisma.CommentWhereUniqueInput,
+    ): Promise<CommentDTO>;
+
+    abstract getFirstComment(
+        where: Prisma.CommentWhereInput,
     ): Promise<CommentDTO>;
 
     abstract updateComment(params: {

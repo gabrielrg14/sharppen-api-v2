@@ -18,7 +18,11 @@ export abstract class BookRepository {
         studentId: string,
     ): Promise<BookDTO[]>;
 
-    abstract getBook(where: Prisma.BookWhereUniqueInput): Promise<BookDTO>;
+    abstract getUniqueBook(
+        where: Prisma.BookWhereUniqueInput,
+    ): Promise<BookDTO>;
+
+    abstract getFirstBook(where: Prisma.BookWhereInput): Promise<BookDTO>;
 
     abstract updateBook(params: {
         where: Prisma.BookWhereUniqueInput;

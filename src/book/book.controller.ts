@@ -52,7 +52,7 @@ export class BookController {
     getBookById(
         @Param('uuid', ParseUUIDPipe) bookId: string,
     ): Promise<BookDTO> {
-        return this.bookService.getBook({ id: bookId });
+        return this.bookService.getUniqueBook({ id: bookId });
     }
 
     @Put('/:uuid')

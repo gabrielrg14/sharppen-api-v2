@@ -40,14 +40,14 @@ export class RoutineController {
     getRoutineByStudentId(
         @Param('uuid', ParseUUIDPipe) studentId: string,
     ): Promise<RoutineDTO> {
-        return this.routineService.getRoutine({ studentId });
+        return this.routineService.getUniqueRoutine({ studentId });
     }
 
     @Get('/:uuid')
     getRoutineById(
         @Param('uuid', ParseUUIDPipe) routineId: string,
     ): Promise<RoutineDTO> {
-        return this.routineService.getRoutine({ id: routineId });
+        return this.routineService.getUniqueRoutine({ id: routineId });
     }
 
     @Put('/:uuid')

@@ -5,12 +5,18 @@ import {
 } from '@nestjs/common';
 import { FollowerRepository } from './follower.repository';
 import { PrismaService } from 'src/db/prisma.service';
+import { StudentService } from 'src/student/student.service';
+import { CollegeService } from 'src/college/college.service';
 import { FollowerDTO } from './dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class FollowerService implements FollowerRepository {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly studentService: StudentService,
+        private readonly collegeService: CollegeService,
+    ) {}
 
     private readonly selectFollower = {
         id: true,
@@ -52,27 +58,14 @@ export class FollowerService implements FollowerRepository {
     };
 
     async followUnfollow(studentId: string, collegeId: string): Promise<void> {
-        const student = await this.prisma.student.findUnique({
-            where: { id: studentId },
-        });
-        if (!student)
-            throw new NotFoundException(
-                this.notFoundMessage('Student', { id: studentId }),
-            );
-
-        const college = await this.prisma.college.findUnique({
-            where: { id: collegeId },
-        });
-        if (!college)
-            throw new NotFoundException(
-                this.notFoundMessage('College', { id: collegeId }),
-            );
+        await this.studentService.getUniqueStudent({ id: studentId });
+        await this.collegeService.getUniqueCollege({ id: collegeId });
 
         try {
-            const followerFound = await this.prisma.follower.findFirst({
-                where: { studentId, collegeId },
+            const followerFound = await this.getFirstFollower({
+                studentId,
+                collegeId,
             });
-
             if (followerFound) {
                 await this.prisma.follower.delete({
                     where: { id: followerFound.id },
@@ -83,7 +76,7 @@ export class FollowerService implements FollowerRepository {
                 });
             }
         } catch (err) {
-            throw new InternalServerErrorException();
+            throw err;
         }
     }
 
@@ -91,25 +84,13 @@ export class FollowerService implements FollowerRepository {
         studentId: string,
         collegeId: string,
     ): Promise<boolean> {
-        const student = await this.prisma.student.findUnique({
-            where: { id: studentId },
-        });
-        if (!student)
-            throw new NotFoundException(
-                this.notFoundMessage('Student', { id: studentId }),
-            );
-
-        const college = await this.prisma.college.findUnique({
-            where: { id: collegeId },
-        });
-        if (!college)
-            throw new NotFoundException(
-                this.notFoundMessage('College', { id: collegeId }),
-            );
+        await this.studentService.getUniqueStudent({ id: studentId });
+        await this.collegeService.getUniqueCollege({ id: collegeId });
 
         try {
-            const followerFound = await this.prisma.follower.findFirst({
-                where: { studentId, collegeId },
+            const followerFound = await this.getFirstFollower({
+                studentId,
+                collegeId,
             });
             return followerFound ? true : false;
         } catch (err) {
@@ -136,7 +117,7 @@ export class FollowerService implements FollowerRepository {
         }
     }
 
-    async getFollower(
+    async getUniqueFollower(
         where: Prisma.FollowerWhereUniqueInput,
     ): Promise<FollowerDTO> {
         try {
@@ -149,5 +130,14 @@ export class FollowerService implements FollowerRepository {
         } catch (err) {
             throw new NotFoundException(err);
         }
+    }
+
+    async getFirstFollower(
+        where: Prisma.FollowerWhereInput,
+    ): Promise<FollowerDTO> {
+        return await this.prisma.follower.findFirst({
+            where,
+            select: this.selectFollower,
+        });
     }
 }

@@ -54,7 +54,7 @@ export class CollegeController {
     getCollegeById(
         @Param('uuid', ParseUUIDPipe) collegeId: string,
     ): Promise<CollegeDTO> {
-        return this.collegeService.getCollege({ id: collegeId });
+        return this.collegeService.getUniqueCollege({ id: collegeId });
     }
 
     @Put('/:uuid')
@@ -86,7 +86,7 @@ export class CollegeController {
     deactivateCollegeById(
         @Param('uuid', ParseUUIDPipe) collegeId: string,
     ): Promise<CollegeDTO> {
-        return this.collegeService.changeCollegeState({
+        return this.collegeService.updateCollegeState({
             where: { id: collegeId },
             active: false,
         });
@@ -97,7 +97,7 @@ export class CollegeController {
     reactivateCollegeById(
         @Param('uuid', ParseUUIDPipe) collegeId: string,
     ): Promise<CollegeDTO> {
-        return this.collegeService.changeCollegeState({
+        return this.collegeService.updateCollegeState({
             where: { id: collegeId },
             active: true,
         });

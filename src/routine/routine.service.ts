@@ -6,12 +6,16 @@ import {
 } from '@nestjs/common';
 import { RoutineRepository } from './routine.repository';
 import { PrismaService } from 'src/db/prisma.service';
+import { StudentService } from 'src/student/student.service';
 import { CreateRoutineDTO, RoutineDTO, UpdateRoutineDTO } from './dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class RoutineService implements RoutineRepository {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly studentService: StudentService,
+    ) {}
 
     private readonly selectRoutine = {
         id: true,
@@ -55,20 +59,12 @@ export class RoutineService implements RoutineRepository {
         data: CreateRoutineDTO,
         studentId: string,
     ): Promise<RoutineDTO> {
-        const routine = await this.prisma.routine.findUnique({
-            where: { studentId },
-        });
+        await this.studentService.getUniqueStudent({ id: studentId });
+
+        const routine = await this.getFirstRoutine({ studentId });
         if (routine)
             throw new ConflictException(
                 `A routine for the student with id ${studentId} has already been created.`,
-            );
-
-        const student = await this.prisma.student.findUnique({
-            where: { id: studentId },
-        });
-        if (!student)
-            throw new NotFoundException(
-                this.notFoundMessage('Student', { id: studentId }),
             );
 
         try {
@@ -106,7 +102,7 @@ export class RoutineService implements RoutineRepository {
         }
     }
 
-    async getRoutine(
+    async getUniqueRoutine(
         where: Prisma.RoutineWhereUniqueInput,
     ): Promise<RoutineDTO> {
         try {
@@ -121,13 +117,22 @@ export class RoutineService implements RoutineRepository {
         }
     }
 
+    async getFirstRoutine(
+        where: Prisma.RoutineWhereUniqueInput,
+    ): Promise<RoutineDTO> {
+        return await this.prisma.routine.findFirst({
+            where,
+            select: this.selectRoutine,
+        });
+    }
+
     async updateRoutine(params: {
         where: Prisma.RoutineWhereUniqueInput;
         data: UpdateRoutineDTO;
     }): Promise<RoutineDTO> {
         const { where, data } = params;
 
-        await this.getRoutine(where);
+        await this.getUniqueRoutine(where);
 
         try {
             return await this.prisma.routine.update({
@@ -143,7 +148,7 @@ export class RoutineService implements RoutineRepository {
     }
 
     async deleteRoutine(where: Prisma.RoutineWhereUniqueInput): Promise<void> {
-        await this.getRoutine(where);
+        await this.getUniqueRoutine(where);
 
         try {
             await this.prisma.routine.delete({ where });

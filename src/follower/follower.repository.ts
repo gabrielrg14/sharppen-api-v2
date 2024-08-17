@@ -16,7 +16,11 @@ export abstract class FollowerRepository {
         where?: Prisma.FollowerWhereInput;
     }): Promise<FollowerDTO[]>;
 
-    abstract getFollower(
+    abstract getUniqueFollower(
         where: Prisma.FollowerWhereUniqueInput,
+    ): Promise<FollowerDTO>;
+
+    abstract getFirstFollower(
+        where: Prisma.FollowerWhereInput,
     ): Promise<FollowerDTO>;
 }

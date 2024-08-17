@@ -5,12 +5,16 @@ import {
 } from '@nestjs/common';
 import { CourseRepository } from './course.repository';
 import { PrismaService } from 'src/db/prisma.service';
+import { CollegeService } from 'src/college/college.service';
 import { CourseDTO, CreateCourseDTO, UpdateCourseDTO } from './dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CourseService implements CourseRepository {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly collegeService: CollegeService,
+    ) {}
 
     private readonly selectCourse = {
         id: true,
@@ -49,13 +53,7 @@ export class CourseService implements CourseRepository {
         data: CreateCourseDTO,
         collegeId: string,
     ): Promise<CourseDTO> {
-        const college = await this.prisma.college.findUnique({
-            where: { id: collegeId },
-        });
-        if (!college)
-            throw new NotFoundException(
-                this.notFoundMessage('College', { id: collegeId }),
-            );
+        await this.collegeService.getUniqueCollege({ id: collegeId });
 
         try {
             return await this.prisma.course.create({
@@ -92,7 +90,9 @@ export class CourseService implements CourseRepository {
         }
     }
 
-    async getCourse(where: Prisma.CourseWhereUniqueInput): Promise<CourseDTO> {
+    async getUniqueCourse(
+        where: Prisma.CourseWhereUniqueInput,
+    ): Promise<CourseDTO> {
         try {
             const courseFound = await this.prisma.course.findUnique({
                 where,
@@ -105,13 +105,20 @@ export class CourseService implements CourseRepository {
         }
     }
 
+    async getFirstCourse(where: Prisma.CourseWhereInput): Promise<CourseDTO> {
+        return await this.prisma.course.findFirst({
+            where,
+            select: this.selectCourse,
+        });
+    }
+
     async updateCourse(params: {
         where: Prisma.CourseWhereUniqueInput;
         data: UpdateCourseDTO;
     }): Promise<CourseDTO> {
         const { where, data } = params;
 
-        await this.getCourse(where);
+        await this.getUniqueCourse(where);
 
         try {
             return await this.prisma.course.update({
@@ -127,7 +134,7 @@ export class CourseService implements CourseRepository {
     }
 
     async deleteCourse(where: Prisma.CourseWhereUniqueInput): Promise<void> {
-        await this.getCourse(where);
+        await this.getUniqueCourse(where);
 
         try {
             await this.prisma.course.delete({ where });

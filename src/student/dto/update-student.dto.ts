@@ -1,11 +1,13 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateStudentDTO } from './create-student.dto';
-import { IsEmpty } from 'class-validator';
+import { IsOptional, IsString, IsBoolean } from 'class-validator';
 
 export class UpdateStudentDTO extends PartialType(CreateStudentDTO) {
-    @IsEmpty()
+    @IsOptional()
+    @IsString()
     password?: string;
 
-    @IsEmpty()
-    passwordConfirmation?: string;
+    @IsOptional()
+    @IsBoolean()
+    active?: boolean;
 }

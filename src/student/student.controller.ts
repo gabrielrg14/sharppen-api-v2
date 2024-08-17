@@ -54,7 +54,7 @@ export class StudentController {
     getStudentById(
         @Param('uuid', ParseUUIDPipe) studentId: string,
     ): Promise<StudentDTO> {
-        return this.studentService.getStudent({ id: studentId });
+        return this.studentService.getUniqueStudent({ id: studentId });
     }
 
     @Put('/:uuid')
@@ -86,7 +86,7 @@ export class StudentController {
     deactivateStudentById(
         @Param('uuid', ParseUUIDPipe) studentId: string,
     ): Promise<StudentDTO> {
-        return this.studentService.changeStudentState({
+        return this.studentService.updateStudentState({
             where: { id: studentId },
             active: false,
         });
@@ -97,7 +97,7 @@ export class StudentController {
     reactivateStudentById(
         @Param('uuid', ParseUUIDPipe) studentId: string,
     ): Promise<StudentDTO> {
-        return this.studentService.changeStudentState({
+        return this.studentService.updateStudentState({
             where: { id: studentId },
             active: true,
         });

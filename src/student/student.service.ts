@@ -54,9 +54,7 @@ export class StudentService implements StudentRepository {
     async createStudent(data: CreateStudentDTO): Promise<StudentDTO> {
         const { email, password, passwordConfirmation } = data;
 
-        const student = await this.prisma.student.findUnique({
-            where: { email },
-        });
+        const student = await this.getFirstStudent({ email });
         if (student) throw new ConflictException(this.conflictMessage(email));
 
         if (password !== passwordConfirmation)
@@ -106,7 +104,7 @@ export class StudentService implements StudentRepository {
         }
     }
 
-    async getStudent(
+    async getUniqueStudent(
         where: Prisma.StudentWhereUniqueInput,
     ): Promise<StudentDTO> {
         try {
@@ -121,6 +119,15 @@ export class StudentService implements StudentRepository {
         }
     }
 
+    async getFirstStudent(
+        where: Prisma.StudentWhereInput,
+    ): Promise<StudentDTO> {
+        return await this.prisma.student.findFirst({
+            where,
+            select: this.studentSelect,
+        });
+    }
+
     async updateStudent(params: {
         where: Prisma.StudentWhereUniqueInput;
         data: UpdateStudentDTO;
@@ -128,12 +135,10 @@ export class StudentService implements StudentRepository {
         const { where, data } = params;
         const { email, birthDate } = data;
 
-        const student = await this.getStudent(where);
+        const student = await this.getUniqueStudent(where);
 
         if (email) {
-            const studentEmail = await this.prisma.student.findUnique({
-                where: { email },
-            });
+            const studentEmail = await this.getFirstStudent({ email });
             if (studentEmail && studentEmail.id !== student.id)
                 throw new ConflictException(this.conflictMessage(email));
         }
@@ -179,10 +184,9 @@ export class StudentService implements StudentRepository {
         );
 
         try {
-            return await this.prisma.student.update({
+            return await this.updateStudent({
                 where,
                 data: { password: passwordHash },
-                select: this.studentSelect,
             });
         } catch (err) {
             throw new InternalServerErrorException(
@@ -191,19 +195,18 @@ export class StudentService implements StudentRepository {
         }
     }
 
-    async changeStudentState(params: {
+    async updateStudentState(params: {
         where: Prisma.StudentWhereUniqueInput;
         active: boolean;
     }): Promise<StudentDTO> {
         const { where, active } = params;
 
-        await this.getStudent(where);
+        await this.getUniqueStudent(where);
 
         try {
-            return await this.prisma.student.update({
+            return await this.updateStudent({
                 where,
                 data: { active },
-                select: this.studentSelect,
             });
         } catch (err) {
             throw new InternalServerErrorException(
@@ -216,7 +219,7 @@ export class StudentService implements StudentRepository {
     }
 
     async deleteStudent(where: Prisma.StudentWhereUniqueInput): Promise<void> {
-        await this.getStudent(where);
+        await this.getUniqueStudent(where);
 
         try {
             await this.prisma.student.delete({ where });

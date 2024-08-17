@@ -56,6 +56,6 @@ export class FollowerController {
     getFollowerById(
         @Param('uuid', ParseUUIDPipe) followerId: string,
     ): Promise<FollowerDTO> {
-        return this.followerService.getFollower({ id: followerId });
+        return this.followerService.getUniqueFollower({ id: followerId });
     }
 }

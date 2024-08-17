@@ -69,6 +69,6 @@ export class ReactionController {
     getReactionById(
         @Param('uuid', ParseUUIDPipe) reactionId: string,
     ): Promise<ReactionDTO> {
-        return this.reactionService.getReaction({ id: reactionId });
+        return this.reactionService.getUniqueReaction({ id: reactionId });
     }
 }

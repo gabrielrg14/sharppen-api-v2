@@ -15,8 +15,12 @@ export abstract class CollegeRepository {
         orderBy?: Prisma.CollegeOrderByWithRelationInput;
     }): Promise<CollegeDTO[]>;
 
-    abstract getCollege(
+    abstract getUniqueCollege(
         where: Prisma.CollegeWhereUniqueInput,
+    ): Promise<CollegeDTO>;
+
+    abstract getFirstCollege(
+        where: Prisma.CollegeWhereInput,
     ): Promise<CollegeDTO>;
 
     abstract updateCollege(params: {
@@ -29,7 +33,7 @@ export abstract class CollegeRepository {
         data: UpdateCollegePasswordDTO;
     }): Promise<CollegeDTO>;
 
-    abstract changeCollegeState(params: {
+    abstract updateCollegeState(params: {
         where: Prisma.CollegeWhereUniqueInput;
         active: boolean;
     }): Promise<CollegeDTO>;

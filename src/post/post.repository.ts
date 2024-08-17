@@ -14,7 +14,11 @@ export abstract class PostRepository {
         orderBy?: Prisma.PostOrderByWithRelationInput;
     }): Promise<PostDTO[]>;
 
-    abstract getPost(where: Prisma.PostWhereUniqueInput): Promise<PostDTO>;
+    abstract getUniquePost(
+        where: Prisma.PostWhereUniqueInput,
+    ): Promise<PostDTO>;
+
+    abstract getFirstPost(where: Prisma.PostWhereInput): Promise<PostDTO>;
 
     abstract updatePost(params: {
         where: Prisma.PostWhereUniqueInput;

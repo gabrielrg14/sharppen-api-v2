@@ -7,5 +7,6 @@ import { CollegeService } from './college.service';
     imports: [DbModule],
     controllers: [CollegeController],
     providers: [CollegeService],
+    exports: [CollegeService],
 })
 export class CollegeModule {}
