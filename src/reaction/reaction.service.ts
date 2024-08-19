@@ -1,11 +1,7 @@
-import {
-    Injectable,
-    BadRequestException,
-    NotFoundException,
-    InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { ReactionRepository } from './reaction.repository';
 import { PrismaService } from 'src/db/prisma.service';
+import { ExceptionService } from 'src/common/exception.service';
 import { StudentService } from 'src/student/student.service';
 import { CollegeService } from 'src/college/college.service';
 import { PostService } from 'src/post/post.service';
@@ -17,6 +13,7 @@ import { Prisma } from '@prisma/client';
 export class ReactionService implements ReactionRepository {
     constructor(
         private readonly prisma: PrismaService,
+        private readonly exceptionService: ExceptionService,
         private readonly studentService: StudentService,
         private readonly collegeService: CollegeService,
         private readonly postService: PostService,
@@ -50,21 +47,6 @@ export class ReactionService implements ReactionRepository {
         },
     };
 
-    private readonly notFoundMessage = (
-        subject: string,
-        where: Prisma.ReactionWhereInput,
-    ): string => {
-        return `${subject} with ${Object.entries(where)
-            .map(([key, value]) => `${key} ${value}`)
-            .join(', ')} was not found.`;
-    };
-    private readonly errorMessage = (
-        subject: string,
-        adjective: string,
-    ): string => {
-        return `Something bad happened and the ${subject} was not ${adjective}.`;
-    };
-
     async reactUnreact(data: ReactDTO, subjectId: string): Promise<void> {
         const { postId, commentId } = data;
         const subjects = {
@@ -75,9 +57,7 @@ export class ReactionService implements ReactionRepository {
         };
 
         if (!postId && !commentId)
-            throw new BadRequestException(
-                'At least one post or comment ID required.',
-            );
+            throw new BadRequestException('A postId or commentId is required.');
 
         if (postId) {
             const post = await this.postService.getUniquePost({ id: postId });
@@ -102,8 +82,9 @@ export class ReactionService implements ReactionRepository {
         if (college) subjects.collegeId = college.id;
 
         if (!student && !college)
-            throw new NotFoundException(
-                this.notFoundMessage('Student or College', { id: subjectId }),
+            this.exceptionService.subjectNotFound<Prisma.ReactionWhereUniqueInput>(
+                'Student or College',
+                { id: subjectId },
             );
 
         try {
@@ -130,8 +111,9 @@ export class ReactionService implements ReactionRepository {
         };
 
         if (!postId && !commentId)
-            throw new NotFoundException(
-                this.notFoundMessage('Post or Comment', { postId, commentId }),
+            this.exceptionService.subjectNotFound<Prisma.ReactionWhereInput>(
+                'Post or Comment',
+                { postId, commentId },
             );
 
         if (postId) {
@@ -157,17 +139,16 @@ export class ReactionService implements ReactionRepository {
         if (college) subjects.collegeId = college.id;
 
         if (!student && !college)
-            throw new NotFoundException(
-                this.notFoundMessage('Student or College', { id: subjectId }),
+            this.exceptionService.subjectNotFound<Prisma.ReactionWhereUniqueInput>(
+                'Student or College',
+                { id: subjectId },
             );
 
         try {
             const reactionFound = await this.getFirstReaction({ ...subjects });
             return reactionFound ? true : false;
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('reaction', 'checked'),
-            );
+            this.exceptionService.somethingBadHappened('reaction', 'checked');
         }
     }
 
@@ -179,8 +160,9 @@ export class ReactionService implements ReactionRepository {
         try {
             return await this.prisma.reaction.count({ where });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('reaction(s)', 'counted'),
+            this.exceptionService.somethingBadHappened(
+                'reaction(s)',
+                'counted',
             );
         }
     }
@@ -196,9 +178,7 @@ export class ReactionService implements ReactionRepository {
                 select: this.selectReaction,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('reactions', 'found'),
-            );
+            this.exceptionService.somethingBadHappened('reactions', 'found');
         }
     }
 
@@ -210,10 +190,14 @@ export class ReactionService implements ReactionRepository {
                 where,
                 select: this.selectReaction,
             });
-            if (!reactionFound) throw this.notFoundMessage('Reaction', where);
+            if (!reactionFound)
+                this.exceptionService.subjectNotFound<Prisma.ReactionWhereUniqueInput>(
+                    'Reaction',
+                    where,
+                );
             return reactionFound;
         } catch (err) {
-            throw new NotFoundException(err);
+            throw err;
         }
     }
 

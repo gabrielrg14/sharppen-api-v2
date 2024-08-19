@@ -1,11 +1,7 @@
-import {
-    Injectable,
-    ConflictException,
-    NotFoundException,
-    InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { RoutineRepository } from './routine.repository';
 import { PrismaService } from 'src/db/prisma.service';
+import { ExceptionService } from 'src/common/exception.service';
 import { StudentService } from 'src/student/student.service';
 import { CreateRoutineDTO, RoutineDTO, UpdateRoutineDTO } from './dto';
 import { Prisma } from '@prisma/client';
@@ -14,6 +10,7 @@ import { Prisma } from '@prisma/client';
 export class RoutineService implements RoutineRepository {
     constructor(
         private readonly prisma: PrismaService,
+        private readonly exceptionService: ExceptionService,
         private readonly studentService: StudentService,
     ) {}
 
@@ -40,21 +37,6 @@ export class RoutineService implements RoutineRepository {
         },
     };
 
-    private readonly notFoundMessage = (
-        subject: string,
-        where: Prisma.RoutineWhereUniqueInput,
-    ): string => {
-        return `${subject} with ${Object.entries(where)
-            .map(([key, value]) => `${key} ${value}`)
-            .join(', ')} was not found.`;
-    };
-    private readonly errorMessage = (
-        subject: string,
-        adjective: string,
-    ): string => {
-        return `Something bad happened and the ${subject} was not ${adjective}.`;
-    };
-
     async createRoutine(
         data: CreateRoutineDTO,
         studentId: string,
@@ -73,9 +55,7 @@ export class RoutineService implements RoutineRepository {
                 select: this.selectRoutine,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('routine', 'created'),
-            );
+            this.exceptionService.somethingBadHappened('routine', 'created');
         }
     }
 
@@ -96,9 +76,7 @@ export class RoutineService implements RoutineRepository {
                 select: this.selectRoutine,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('routines', 'found'),
-            );
+            this.exceptionService.somethingBadHappened('routines', 'found');
         }
     }
 
@@ -110,10 +88,14 @@ export class RoutineService implements RoutineRepository {
                 where,
                 select: this.selectRoutine,
             });
-            if (!routineFound) throw this.notFoundMessage('Routine', where);
+            if (!routineFound)
+                this.exceptionService.subjectNotFound<Prisma.RoutineWhereUniqueInput>(
+                    'Routine',
+                    where,
+                );
             return routineFound;
         } catch (err) {
-            throw new NotFoundException(err);
+            throw err;
         }
     }
 
@@ -141,9 +123,7 @@ export class RoutineService implements RoutineRepository {
                 select: this.selectRoutine,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('routine', 'updated'),
-            );
+            this.exceptionService.somethingBadHappened('routine', 'updated');
         }
     }
 
@@ -153,9 +133,7 @@ export class RoutineService implements RoutineRepository {
         try {
             await this.prisma.routine.delete({ where });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('routine', 'deleted'),
-            );
+            this.exceptionService.somethingBadHappened('routine', 'deleted');
         }
     }
 }

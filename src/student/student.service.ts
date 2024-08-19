@@ -1,13 +1,7 @@
-import {
-    Injectable,
-    ConflictException,
-    BadRequestException,
-    InternalServerErrorException,
-    NotFoundException,
-    UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { StudentRepository } from './student.repository';
 import { PrismaService } from 'src/db/prisma.service';
+import { ExceptionService } from 'src/common/exception.service';
 import {
     StudentDTO,
     CreateStudentDTO,
@@ -19,7 +13,10 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class StudentService implements StudentRepository {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly exceptionService: ExceptionService,
+    ) {}
 
     private readonly hashSalt = 10;
     private readonly studentSelect = {
@@ -34,33 +31,14 @@ export class StudentService implements StudentRepository {
         updatedAt: true,
     };
 
-    private readonly conflictMessage = (email: string): string => {
-        return `A student with the email ${email} is already registered.`;
-    };
-    private readonly errorMessage = (
-        subject: string,
-        adjective: string,
-    ): string => {
-        return `Something bad happened and the ${subject} was not ${adjective}.`;
-    };
-    private readonly notFoundMessage = (
-        where: Prisma.StudentWhereUniqueInput,
-    ): string => {
-        return `Student with ${Object.entries(where)
-            .map(([key, value]) => `${key} ${value}`)
-            .join(', ')} was not found.`;
-    };
-
     async createStudent(data: CreateStudentDTO): Promise<StudentDTO> {
         const { email, password, passwordConfirmation } = data;
 
         const student = await this.getFirstStudent({ email });
-        if (student) throw new ConflictException(this.conflictMessage(email));
+        if (student) this.exceptionService.emailConflict('student', email);
 
         if (password !== passwordConfirmation)
-            throw new BadRequestException(
-                'Password and password confirmation do not match.',
-            );
+            this.exceptionService.passwordConfirmationNotMatch();
         delete data.passwordConfirmation;
 
         const passwordHash = await bcrypt.hashSync(password, this.hashSalt);
@@ -75,9 +53,7 @@ export class StudentService implements StudentRepository {
                 select: this.studentSelect,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('student', 'created'),
-            );
+            this.exceptionService.somethingBadHappened('student', 'created');
         }
     }
 
@@ -98,9 +74,7 @@ export class StudentService implements StudentRepository {
                 select: this.studentSelect,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('students', 'found'),
-            );
+            this.exceptionService.somethingBadHappened('students', 'found');
         }
     }
 
@@ -112,10 +86,14 @@ export class StudentService implements StudentRepository {
                 where,
                 select: this.studentSelect,
             });
-            if (!studentFound) throw this.notFoundMessage(where);
+            if (!studentFound)
+                this.exceptionService.subjectNotFound<Prisma.StudentWhereUniqueInput>(
+                    'Student',
+                    where,
+                );
             return studentFound;
         } catch (err) {
-            throw new NotFoundException(err);
+            throw err;
         }
     }
 
@@ -140,7 +118,7 @@ export class StudentService implements StudentRepository {
         if (email) {
             const studentEmail = await this.getFirstStudent({ email });
             if (studentEmail && studentEmail.id !== student.id)
-                throw new ConflictException(this.conflictMessage(email));
+                this.exceptionService.emailConflict('student', email);
         }
         if (birthDate) data.birthDate = new Date(data.birthDate);
 
@@ -151,9 +129,7 @@ export class StudentService implements StudentRepository {
                 select: this.studentSelect,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('student', 'updated'),
-            );
+            this.exceptionService.somethingBadHappened('student', 'updated');
         }
     }
 
@@ -164,12 +140,14 @@ export class StudentService implements StudentRepository {
         const { where, data } = params;
 
         if (data.password !== data.passwordConfirmation)
-            throw new BadRequestException(
-                'Password and password confirmation do not match.',
-            );
+            this.exceptionService.passwordConfirmationNotMatch();
 
         const student = await this.prisma.student.findUnique({ where });
-        if (!student) throw new NotFoundException(this.notFoundMessage(where));
+        if (!student)
+            this.exceptionService.subjectNotFound<Prisma.StudentWhereUniqueInput>(
+                'Student',
+                where,
+            );
 
         const isMatch = bcrypt.compareSync(
             data.currentPassword,
@@ -189,9 +167,7 @@ export class StudentService implements StudentRepository {
                 data: { password: passwordHash },
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('password', 'changed'),
-            );
+            this.exceptionService.somethingBadHappened('password', 'changed');
         }
     }
 
@@ -209,11 +185,9 @@ export class StudentService implements StudentRepository {
                 data: { active },
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage(
-                    'student',
-                    active ? 'reactivated' : 'deactivated',
-                ),
+            this.exceptionService.somethingBadHappened(
+                'student',
+                active ? 'reactivated' : 'deactivated',
             );
         }
     }
@@ -224,9 +198,7 @@ export class StudentService implements StudentRepository {
         try {
             await this.prisma.student.delete({ where });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('student', 'deleted'),
-            );
+            this.exceptionService.somethingBadHappened('student', 'deleted');
         }
     }
 }

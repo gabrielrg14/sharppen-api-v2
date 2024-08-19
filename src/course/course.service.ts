@@ -1,10 +1,7 @@
-import {
-    Injectable,
-    NotFoundException,
-    InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CourseRepository } from './course.repository';
 import { PrismaService } from 'src/db/prisma.service';
+import { ExceptionService } from 'src/common/exception.service';
 import { CollegeService } from 'src/college/college.service';
 import { CourseDTO, CreateCourseDTO, UpdateCourseDTO } from './dto';
 import { Prisma } from '@prisma/client';
@@ -13,6 +10,7 @@ import { Prisma } from '@prisma/client';
 export class CourseService implements CourseRepository {
     constructor(
         private readonly prisma: PrismaService,
+        private readonly exceptionService: ExceptionService,
         private readonly collegeService: CollegeService,
     ) {}
 
@@ -34,21 +32,6 @@ export class CourseService implements CourseRepository {
         },
     };
 
-    private readonly notFoundMessage = (
-        subject: string,
-        where: Prisma.CourseWhereUniqueInput,
-    ): string => {
-        return `${subject} with ${Object.entries(where)
-            .map(([key, value]) => `${key} ${value}`)
-            .join(', ')} was not found.`;
-    };
-    private readonly errorMessage = (
-        subject: string,
-        adjective: string,
-    ): string => {
-        return `Something bad happened and the ${subject} was not ${adjective}.`;
-    };
-
     async createCourse(
         data: CreateCourseDTO,
         collegeId: string,
@@ -61,9 +44,7 @@ export class CourseService implements CourseRepository {
                 select: this.selectCourse,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('course', 'created'),
-            );
+            this.exceptionService.somethingBadHappened('course', 'created');
         }
     }
 
@@ -84,9 +65,7 @@ export class CourseService implements CourseRepository {
                 select: this.selectCourse,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('courses', 'found'),
-            );
+            this.exceptionService.somethingBadHappened('courses', 'found');
         }
     }
 
@@ -98,10 +77,14 @@ export class CourseService implements CourseRepository {
                 where,
                 select: this.selectCourse,
             });
-            if (!courseFound) throw this.notFoundMessage('Course', where);
+            if (!courseFound)
+                this.exceptionService.subjectNotFound<Prisma.CourseWhereUniqueInput>(
+                    'Course',
+                    where,
+                );
             return courseFound;
         } catch (err) {
-            throw new NotFoundException(err);
+            throw err;
         }
     }
 
@@ -127,9 +110,7 @@ export class CourseService implements CourseRepository {
                 select: this.selectCourse,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('course', 'updated'),
-            );
+            this.exceptionService.somethingBadHappened('course', 'updated');
         }
     }
 
@@ -139,9 +120,7 @@ export class CourseService implements CourseRepository {
         try {
             await this.prisma.course.delete({ where });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('course', 'deleted'),
-            );
+            this.exceptionService.somethingBadHappened('course', 'deleted');
         }
     }
 }

@@ -1,10 +1,7 @@
-import {
-    Injectable,
-    NotFoundException,
-    InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { FollowerRepository } from './follower.repository';
 import { PrismaService } from 'src/db/prisma.service';
+import { ExceptionService } from 'src/common/exception.service';
 import { StudentService } from 'src/student/student.service';
 import { CollegeService } from 'src/college/college.service';
 import { FollowerDTO } from './dto';
@@ -14,6 +11,7 @@ import { Prisma } from '@prisma/client';
 export class FollowerService implements FollowerRepository {
     constructor(
         private readonly prisma: PrismaService,
+        private readonly exceptionService: ExceptionService,
         private readonly studentService: StudentService,
         private readonly collegeService: CollegeService,
     ) {}
@@ -40,21 +38,6 @@ export class FollowerService implements FollowerRepository {
                 active: true,
             },
         },
-    };
-
-    private readonly notFoundMessage = (
-        subject: string,
-        where: Prisma.FollowerWhereUniqueInput,
-    ): string => {
-        return `${subject} with ${Object.entries(where)
-            .map(([key, value]) => `${key} ${value}`)
-            .join(', ')} was not found.`;
-    };
-    private readonly errorMessage = (
-        subject: string,
-        adjective: string,
-    ): string => {
-        return `Something bad happened and the ${subject} was not ${adjective}.`;
     };
 
     async followUnfollow(studentId: string, collegeId: string): Promise<void> {
@@ -94,9 +77,7 @@ export class FollowerService implements FollowerRepository {
             });
             return followerFound ? true : false;
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('follower', 'checked'),
-            );
+            this.exceptionService.somethingBadHappened('follower', 'checked');
         }
     }
 
@@ -111,9 +92,7 @@ export class FollowerService implements FollowerRepository {
                 select: this.selectFollower,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('followers', 'found'),
-            );
+            this.exceptionService.somethingBadHappened('followers', 'found');
         }
     }
 
@@ -125,10 +104,14 @@ export class FollowerService implements FollowerRepository {
                 where,
                 select: this.selectFollower,
             });
-            if (!followerFound) throw this.notFoundMessage('Follower', where);
+            if (!followerFound)
+                this.exceptionService.subjectNotFound<Prisma.FollowerWhereUniqueInput>(
+                    'Follower',
+                    where,
+                );
             return followerFound;
         } catch (err) {
-            throw new NotFoundException(err);
+            throw err;
         }
     }
 

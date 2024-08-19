@@ -1,10 +1,7 @@
-import {
-    Injectable,
-    NotFoundException,
-    InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { BookRepository } from './book.repository';
 import { PrismaService } from 'src/db/prisma.service';
+import { ExceptionService } from 'src/common/exception.service';
 import { StudentService } from 'src/student/student.service';
 import { CollegeService } from 'src/college/college.service';
 import { BookDTO, CreateBookDTO, UpdateBookDTO } from './dto';
@@ -14,6 +11,7 @@ import { Prisma } from '@prisma/client';
 export class BookService implements BookRepository {
     constructor(
         private readonly prisma: PrismaService,
+        private readonly exceptionService: ExceptionService,
         private readonly studentService: StudentService,
         private readonly collegeService: CollegeService,
     ) {}
@@ -36,21 +34,6 @@ export class BookService implements BookRepository {
         },
     };
 
-    private readonly notFoundMessage = (
-        subject: string,
-        where: Prisma.BookWhereUniqueInput,
-    ): string => {
-        return `${subject} with ${Object.entries(where)
-            .map(([key, value]) => `${key} ${value}`)
-            .join(', ')} was not found.`;
-    };
-    private readonly errorMessage = (
-        subject: string,
-        adjective: string,
-    ): string => {
-        return `Something bad happened and the ${subject} was not ${adjective}.`;
-    };
-
     async createBook(data: CreateBookDTO, collegeId: string): Promise<BookDTO> {
         await this.collegeService.getUniqueCollege({ id: collegeId });
 
@@ -60,9 +43,7 @@ export class BookService implements BookRepository {
                 select: this.selectBook,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('book', 'created'),
-            );
+            this.exceptionService.somethingBadHappened('book', 'created');
         }
     }
 
@@ -83,9 +64,7 @@ export class BookService implements BookRepository {
                 select: this.selectBook,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('books', 'found'),
-            );
+            this.exceptionService.somethingBadHappened('books', 'found');
         }
     }
 
@@ -110,9 +89,7 @@ export class BookService implements BookRepository {
                 .map((cf) => cf.college.books)
                 .reduce((books, book) => books.concat(book), []);
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('books', 'found'),
-            );
+            this.exceptionService.somethingBadHappened('books', 'found');
         }
     }
 
@@ -122,10 +99,14 @@ export class BookService implements BookRepository {
                 where,
                 select: this.selectBook,
             });
-            if (!bookFound) throw this.notFoundMessage('Book', where);
+            if (!bookFound)
+                this.exceptionService.subjectNotFound<Prisma.BookWhereUniqueInput>(
+                    'Book',
+                    where,
+                );
             return bookFound;
         } catch (err) {
-            throw new NotFoundException(err);
+            throw err;
         }
     }
 
@@ -151,9 +132,7 @@ export class BookService implements BookRepository {
                 select: this.selectBook,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('book', 'updated'),
-            );
+            this.exceptionService.somethingBadHappened('book', 'updated');
         }
     }
 
@@ -163,9 +142,7 @@ export class BookService implements BookRepository {
         try {
             await this.prisma.book.delete({ where });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('book', 'deleted'),
-            );
+            this.exceptionService.somethingBadHappened('book', 'deleted');
         }
     }
 }

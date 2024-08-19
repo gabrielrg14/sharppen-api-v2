@@ -1,13 +1,7 @@
-import {
-    Injectable,
-    ConflictException,
-    BadRequestException,
-    InternalServerErrorException,
-    NotFoundException,
-    UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CollegeRepository } from './college.repository';
 import { PrismaService } from 'src/db/prisma.service';
+import { ExceptionService } from 'src/common/exception.service';
 import {
     CreateCollegeDTO,
     CollegeDTO,
@@ -19,7 +13,10 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class CollegeService implements CollegeRepository {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly exceptionService: ExceptionService,
+    ) {}
 
     private readonly hashSalt = 10;
     private readonly collegeSelect = {
@@ -35,33 +32,14 @@ export class CollegeService implements CollegeRepository {
         updatedAt: true,
     };
 
-    private readonly conflictMessage = (email: string): string => {
-        return `A college with the email ${email} is already registered.`;
-    };
-    private readonly errorMessage = (
-        subject: string,
-        adjective: string,
-    ): string => {
-        return `Something bad happened and the ${subject} was not ${adjective}.`;
-    };
-    private readonly notFoundMessage = (
-        where: Prisma.CollegeWhereUniqueInput,
-    ): string => {
-        return `College with ${Object.entries(where)
-            .map(([key, value]) => `${key} ${value}`)
-            .join(', ')} was not found.`;
-    };
-
     async createCollege(data: CreateCollegeDTO): Promise<CollegeDTO> {
         const { email, password, passwordConfirmation } = data;
 
         const college = await this.getFirstCollege({ email });
-        if (college) throw new ConflictException(this.conflictMessage(email));
+        if (college) this.exceptionService.emailConflict('college', email);
 
         if (password !== passwordConfirmation)
-            throw new BadRequestException(
-                'Password and password confirmation do not match.',
-            );
+            this.exceptionService.passwordConfirmationNotMatch();
         delete data.passwordConfirmation;
 
         const passwordHash = await bcrypt.hashSync(password, this.hashSalt);
@@ -76,9 +54,7 @@ export class CollegeService implements CollegeRepository {
                 select: this.collegeSelect,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('college', 'created'),
-            );
+            this.exceptionService.somethingBadHappened('college', 'created');
         }
     }
 
@@ -99,9 +75,7 @@ export class CollegeService implements CollegeRepository {
                 select: this.collegeSelect,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('colleges', 'found'),
-            );
+            this.exceptionService.somethingBadHappened('colleges', 'found');
         }
     }
 
@@ -113,10 +87,14 @@ export class CollegeService implements CollegeRepository {
                 where,
                 select: this.collegeSelect,
             });
-            if (!collegeFound) throw this.notFoundMessage(where);
+            if (!collegeFound)
+                this.exceptionService.subjectNotFound<Prisma.CollegeWhereUniqueInput>(
+                    'College',
+                    where,
+                );
             return collegeFound;
         } catch (err) {
-            throw new NotFoundException(err);
+            throw err;
         }
     }
 
@@ -141,7 +119,7 @@ export class CollegeService implements CollegeRepository {
         if (email) {
             const collegeEmail = await this.getFirstCollege({ email });
             if (collegeEmail && collegeEmail.id !== college.id)
-                throw new ConflictException(this.conflictMessage(email));
+                this.exceptionService.emailConflict('college', email);
         }
         if (testDate) data.testDate = new Date(data.testDate);
 
@@ -152,9 +130,7 @@ export class CollegeService implements CollegeRepository {
                 select: this.collegeSelect,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('college', 'updated'),
-            );
+            this.exceptionService.somethingBadHappened('college', 'updated');
         }
     }
 
@@ -165,12 +141,14 @@ export class CollegeService implements CollegeRepository {
         const { where, data } = params;
 
         if (data.password !== data.passwordConfirmation)
-            throw new BadRequestException(
-                'Password and password confirmation do not match.',
-            );
+            this.exceptionService.passwordConfirmationNotMatch();
 
         const college = await this.prisma.college.findUnique({ where });
-        if (!college) throw new NotFoundException(this.notFoundMessage(where));
+        if (!college)
+            this.exceptionService.subjectNotFound<Prisma.CollegeWhereUniqueInput>(
+                'College',
+                where,
+            );
 
         const isMatch = bcrypt.compareSync(
             data.currentPassword,
@@ -190,9 +168,7 @@ export class CollegeService implements CollegeRepository {
                 data: { password: passwordHash },
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('password', 'changed'),
-            );
+            this.exceptionService.somethingBadHappened('password', 'changed');
         }
     }
 
@@ -210,11 +186,9 @@ export class CollegeService implements CollegeRepository {
                 data: { active },
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage(
-                    'college',
-                    active ? 'reactivated' : 'deactivated',
-                ),
+            this.exceptionService.somethingBadHappened(
+                'college',
+                active ? 'reactivated' : 'deactivated',
             );
         }
     }
@@ -225,9 +199,7 @@ export class CollegeService implements CollegeRepository {
         try {
             await this.prisma.college.delete({ where });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('college', 'deleted'),
-            );
+            this.exceptionService.somethingBadHappened('college', 'deleted');
         }
     }
 }

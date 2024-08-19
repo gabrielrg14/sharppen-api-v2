@@ -1,10 +1,7 @@
-import {
-    Injectable,
-    NotFoundException,
-    InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CommentRepository } from './comment.repository';
 import { PrismaService } from 'src/db/prisma.service';
+import { ExceptionService } from 'src/common/exception.service';
 import { StudentService } from 'src/student/student.service';
 import { CollegeService } from 'src/college/college.service';
 import { PostService } from 'src/post/post.service';
@@ -15,6 +12,7 @@ import { Prisma } from '@prisma/client';
 export class CommentService implements CommentRepository {
     constructor(
         private readonly prisma: PrismaService,
+        private readonly exceptionService: ExceptionService,
         private readonly studentService: StudentService,
         private readonly collegeService: CollegeService,
         private readonly postService: PostService,
@@ -55,21 +53,6 @@ export class CommentService implements CommentRepository {
         },
     };
 
-    private readonly notFoundMessage = (
-        subject: string,
-        where: Prisma.CommentWhereInput,
-    ): string => {
-        return `${subject} with ${Object.entries(where)
-            .map(([key, value]) => `${key} ${value}`)
-            .join(', ')} was not found.`;
-    };
-    private readonly errorMessage = (
-        subject: string,
-        adjective: string,
-    ): string => {
-        return `Something bad happened and the ${subject} was not ${adjective}.`;
-    };
-
     async createComment(
         data: CreateCommentDTO,
         subjectId: string,
@@ -95,8 +78,9 @@ export class CommentService implements CommentRepository {
         if (college) subject.collegeId = college.id;
 
         if (!student && !college)
-            throw new NotFoundException(
-                this.notFoundMessage('Student or College', { id: subjectId }),
+            this.exceptionService.subjectNotFound<Prisma.CommentWhereUniqueInput>(
+                'Student or College',
+                { id: subjectId },
             );
 
         try {
@@ -105,9 +89,7 @@ export class CommentService implements CommentRepository {
                 select: this.selectComment,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('comment', 'created'),
-            );
+            this.exceptionService.somethingBadHappened('comment', 'created');
         }
     }
 
@@ -128,9 +110,7 @@ export class CommentService implements CommentRepository {
                 select: this.selectComment,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('comments', 'found'),
-            );
+            this.exceptionService.somethingBadHappened('comments', 'found');
         }
     }
 
@@ -142,10 +122,14 @@ export class CommentService implements CommentRepository {
                 where,
                 select: this.selectComment,
             });
-            if (!commentFound) throw this.notFoundMessage('Comment', where);
+            if (!commentFound)
+                this.exceptionService.subjectNotFound<Prisma.CommentWhereUniqueInput>(
+                    'Comment',
+                    where,
+                );
             return commentFound;
         } catch (err) {
-            throw new NotFoundException(err);
+            throw err;
         }
     }
 
@@ -173,9 +157,7 @@ export class CommentService implements CommentRepository {
                 select: this.selectComment,
             });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('comment', 'updated'),
-            );
+            this.exceptionService.somethingBadHappened('comment', 'updated');
         }
     }
 
@@ -185,9 +167,7 @@ export class CommentService implements CommentRepository {
         try {
             await this.prisma.comment.delete({ where });
         } catch (err) {
-            throw new InternalServerErrorException(
-                this.errorMessage('comment', 'deleted'),
-            );
+            this.exceptionService.somethingBadHappened('comment', 'deleted');
         }
     }
 }

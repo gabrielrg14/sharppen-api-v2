@@ -13,7 +13,7 @@ export class AuthService implements AuthRepository {
         private readonly jwtService: JwtService,
     ) {}
 
-    private readonly unauthorizedMessage = 'Invalid credentials.';
+    private readonly invalidCredentialsMessage = 'Invalid credentials.';
 
     async authenticate(authData: AuthDTO): Promise<AuthTokenDTO> {
         const { email, password } = authData;
@@ -27,14 +27,14 @@ export class AuthService implements AuthRepository {
         });
 
         if (!student && !college)
-            throw new UnauthorizedException(this.unauthorizedMessage);
+            throw new UnauthorizedException(this.invalidCredentialsMessage);
 
         const passwordMatch = await bcrypt.compareSync(
             password,
             student?.password || college?.password,
         );
         if (!passwordMatch)
-            throw new UnauthorizedException(this.unauthorizedMessage);
+            throw new UnauthorizedException(this.invalidCredentialsMessage);
 
         const payload = { sub: student?.id || college?.id };
         return {
