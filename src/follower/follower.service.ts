@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { FollowerRepository } from './follower.repository';
 import { PrismaService } from 'src/db/prisma.service';
 import { ExceptionService } from 'src/common/exception.service';
@@ -59,7 +59,7 @@ export class FollowerService implements FollowerRepository {
                 });
             }
         } catch (err) {
-            throw err;
+            throw new InternalServerErrorException();
         }
     }
 

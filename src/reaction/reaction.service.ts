@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+    Injectable,
+    BadRequestException,
+    InternalServerErrorException,
+} from '@nestjs/common';
 import { ReactionRepository } from './reaction.repository';
 import { PrismaService } from 'src/db/prisma.service';
 import { ExceptionService } from 'src/common/exception.service';
@@ -97,7 +101,7 @@ export class ReactionService implements ReactionRepository {
                 await this.prisma.reaction.create({ data: subjects });
             }
         } catch (err) {
-            throw err;
+            throw new InternalServerErrorException();
         }
     }
 
