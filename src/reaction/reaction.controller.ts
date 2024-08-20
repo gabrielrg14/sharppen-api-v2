@@ -49,7 +49,7 @@ export class ReactionController {
         if (query.studentId) where.studentId = query.studentId;
         if (query.collegeId) where.collegeId = query.collegeId;
 
-        return this.reactionService.getReactionCount({ where });
+        return this.reactionService.getReactionCount(where);
     }
 
     @Get()

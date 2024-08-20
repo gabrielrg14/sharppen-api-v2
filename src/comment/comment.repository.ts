@@ -7,6 +7,8 @@ export abstract class CommentRepository {
         subjectId: string,
     ): Promise<CommentDTO>;
 
+    abstract getCommentCount(where: Prisma.CommentWhereInput): Promise<number>;
+
     abstract getComments(params: {
         skip?: number;
         take?: number;

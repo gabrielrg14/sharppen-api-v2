@@ -6,9 +6,9 @@ export abstract class ReactionRepository {
 
     abstract checkReaction(data: ReactDTO, subjectId: string): Promise<boolean>;
 
-    abstract getReactionCount(params: {
-        where?: Prisma.ReactionWhereInput;
-    }): Promise<number>;
+    abstract getReactionCount(
+        where: Prisma.ReactionWhereInput,
+    ): Promise<number>;
 
     abstract getReactions(params: {
         where?: Prisma.ReactionWhereInput;

@@ -35,6 +35,21 @@ export class CommentController {
         return this.commentService.createComment(commentData, req.token?.sub);
     }
 
+    @Get('/count')
+    getCommentCount(@Query() query: CommentQueryParams): Promise<number> {
+        const where: Prisma.CommentWhereInput = {};
+
+        if (query.postId) {
+            where.postId = query.postId;
+            where.commentId = null; // does not get related comments
+        }
+        if (query.commentId) where.commentId = query.commentId;
+        if (query.studentId) where.studentId = query.studentId;
+        if (query.collegeId) where.collegeId = query.collegeId;
+
+        return this.commentService.getCommentCount(where);
+    }
+
     @Get()
     getAllComments(@Query() query: CommentQueryParams): Promise<CommentDTO[]> {
         const where: Prisma.CommentWhereInput = {};

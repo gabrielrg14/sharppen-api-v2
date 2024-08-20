@@ -152,16 +152,12 @@ export class ReactionService implements ReactionRepository {
         }
     }
 
-    async getReactionCount(params: {
-        where?: Prisma.ReactionWhereInput;
-    }): Promise<number> {
-        const { where } = params;
-
+    async getReactionCount(where: Prisma.ReactionWhereInput): Promise<number> {
         try {
             return await this.prisma.reaction.count({ where });
         } catch (err) {
             this.exceptionService.somethingBadHappened(
-                'reaction(s)',
+                'reaction count',
                 'counted',
             );
         }

@@ -93,6 +93,17 @@ export class CommentService implements CommentRepository {
         }
     }
 
+    async getCommentCount(where: Prisma.CommentWhereInput): Promise<number> {
+        try {
+            return await this.prisma.comment.count({ where });
+        } catch (err) {
+            this.exceptionService.somethingBadHappened(
+                'comment count',
+                'counted',
+            );
+        }
+    }
+
     async getComments(params: {
         skip?: number;
         take?: number;

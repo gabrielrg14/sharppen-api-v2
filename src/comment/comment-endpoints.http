@@ -5,8 +5,18 @@ Content-Type: application/json
 
 {
     "content": "Content Test",
-    "postId": "06bb13f3-9ade-4b7a-a21b-53b4edfb64c8"
+    "postId": "12ea07aa-7d2e-477a-80f1-e80136c52638"
 }
+
+###
+
+# GET COMMENT COUNT BY POST ID
+GET http://localhost:3000/comment/count?postId=12ea07aa-7d2e-477a-80f1-e80136c52638
+
+###
+
+# GET COMMENT COUNT BY COMMENT ID
+GET http://localhost:3000/comment/count?commentId=5002a7f5-fc73-41f2-af5a-5814fd4e8017
 
 ###
 
@@ -16,7 +26,7 @@ GET http://localhost:3000/comment
 ###
 
 # GET COMMENTS BY POST ID
-GET http://localhost:3000/comment?postId=06bb13f3-9ade-4b7a-a21b-53b4edfb64c8
+GET http://localhost:3000/comment?postId=12ea07aa-7d2e-477a-80f1-e80136c52638
 
 ###
 
