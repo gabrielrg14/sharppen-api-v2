@@ -11,6 +11,7 @@ import { CourseModule } from './course/course.module';
 import { PostModule } from './post/post.module';
 import { CommentModule } from './comment/comment.module';
 import { ReactionModule } from './reaction/reaction.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
     imports: [
@@ -26,6 +27,7 @@ import { ReactionModule } from './reaction/reaction.module';
         PostModule,
         CommentModule,
         ReactionModule,
+        SearchModule,
     ],
 })
 export class AppModule {}

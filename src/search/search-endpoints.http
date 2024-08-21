@@ -1,0 +1,2 @@
+# SEARCH STUDENTS AND COLLEGES BY NAME
+GET http://localhost:3000/search/test
