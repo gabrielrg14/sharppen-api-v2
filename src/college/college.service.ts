@@ -172,27 +172,6 @@ export class CollegeService implements CollegeRepository {
         }
     }
 
-    async updateCollegeState(params: {
-        where: Prisma.CollegeWhereUniqueInput;
-        active: boolean;
-    }): Promise<CollegeDTO> {
-        const { where, active } = params;
-
-        await this.getUniqueCollege(where);
-
-        try {
-            return await this.updateCollege({
-                where,
-                data: { active },
-            });
-        } catch (err) {
-            this.exceptionService.somethingBadHappened(
-                'college',
-                active ? 'reactivated' : 'deactivated',
-            );
-        }
-    }
-
     async deleteCollege(where: Prisma.CollegeWhereUniqueInput): Promise<void> {
         await this.getUniqueCollege(where);
 

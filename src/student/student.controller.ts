@@ -81,25 +81,25 @@ export class StudentController {
         });
     }
 
-    @Patch('/deactivate/:uuid')
+    @Patch('/:uuid/deactivate')
     @UseGuards(AuthGuard)
     deactivateStudentById(
         @Param('uuid', ParseUUIDPipe) studentId: string,
     ): Promise<StudentDTO> {
-        return this.studentService.updateStudentState({
+        return this.studentService.updateStudent({
             where: { id: studentId },
-            active: false,
+            data: { active: false },
         });
     }
 
-    @Patch('/reactivate/:uuid')
+    @Patch('/:uuid/reactivate')
     @UseGuards(AuthGuard)
     reactivateStudentById(
         @Param('uuid', ParseUUIDPipe) studentId: string,
     ): Promise<StudentDTO> {
-        return this.studentService.updateStudentState({
+        return this.studentService.updateStudent({
             where: { id: studentId },
-            active: true,
+            data: { active: true },
         });
     }
 

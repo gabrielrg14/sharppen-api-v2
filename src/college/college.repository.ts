@@ -33,11 +33,6 @@ export abstract class CollegeRepository {
         data: UpdateCollegePasswordDTO;
     }): Promise<CollegeDTO>;
 
-    abstract updateCollegeState(params: {
-        where: Prisma.CollegeWhereUniqueInput;
-        active: boolean;
-    }): Promise<CollegeDTO>;
-
     abstract deleteCollege(
         where: Prisma.CollegeWhereUniqueInput,
     ): Promise<void>;

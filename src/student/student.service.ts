@@ -171,27 +171,6 @@ export class StudentService implements StudentRepository {
         }
     }
 
-    async updateStudentState(params: {
-        where: Prisma.StudentWhereUniqueInput;
-        active: boolean;
-    }): Promise<StudentDTO> {
-        const { where, active } = params;
-
-        await this.getUniqueStudent(where);
-
-        try {
-            return await this.updateStudent({
-                where,
-                data: { active },
-            });
-        } catch (err) {
-            this.exceptionService.somethingBadHappened(
-                'student',
-                active ? 'reactivated' : 'deactivated',
-            );
-        }
-    }
-
     async deleteStudent(where: Prisma.StudentWhereUniqueInput): Promise<void> {
         await this.getUniqueStudent(where);
 

@@ -19,12 +19,12 @@ GET http://localhost:3000/student
 ###
 
 # GET STUDENT BY ID
-GET http://localhost:3000/student/f5f65128-5ec5-4465-a239-f1dbe7787445
+GET http://localhost:3000/student/522e3971-9bea-417c-8f49-49d06c8581d7
 
 ###
 
 # UPDATE STUDENT BY ID
-PUT http://localhost:3000/student/f5f65128-5ec5-4465-a239-f1dbe7787445
+PUT http://localhost:3000/student/522e3971-9bea-417c-8f49-49d06c8581d7
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 Content-Type: application/json
 
@@ -38,7 +38,7 @@ Content-Type: application/json
 ###
 
 # UPDATE STUDENT PASSWORD BY ID
-PATCH http://localhost:3000/student/f5f65128-5ec5-4465-a239-f1dbe7787445/password
+PATCH http://localhost:3000/student/522e3971-9bea-417c-8f49-49d06c8581d7/password
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 Content-Type: application/json
 
@@ -51,17 +51,17 @@ Content-Type: application/json
 ###
 
 # DEACTIVATE STUDENT BY ID
-PATCH http://localhost:3000/student/deactivate/f5f65128-5ec5-4465-a239-f1dbe7787445
+PATCH http://localhost:3000/student/522e3971-9bea-417c-8f49-49d06c8581d7/deactivate
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 
 ###
 
 # REACTIVATE STUDENT BY ID
-PATCH http://localhost:3000/student/reactivate/f5f65128-5ec5-4465-a239-f1dbe7787445
+PATCH http://localhost:3000/student/522e3971-9bea-417c-8f49-49d06c8581d7/reactivate
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 
 ###
 
 # DELETE STUDENT BY ID
-DELETE http://localhost:3000/student/f5f65128-5ec5-4465-a239-f1dbe7787445
+DELETE http://localhost:3000/student/522e3971-9bea-417c-8f49-49d06c8581d7
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
