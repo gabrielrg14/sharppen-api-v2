@@ -1,11 +1,11 @@
 # FOLLOW OR UNFOLLOW
-POST http://localhost:3000/follower/3b767ab8-6c07-42dd-8e7c-344c0cd29e0b
+POST http://localhost:3000/follower/59c23c5e-85a8-450b-91f1-bff32a529f75
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 
 ###
 
 # CHECK IF FOLLOWING
-GET http://localhost:3000/follower/check/3b767ab8-6c07-42dd-8e7c-344c0cd29e0b
+GET http://localhost:3000/follower/check/59c23c5e-85a8-450b-91f1-bff32a529f75
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 
 ###

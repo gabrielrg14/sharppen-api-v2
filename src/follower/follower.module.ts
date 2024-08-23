@@ -10,5 +10,6 @@ import { FollowerService } from './follower.service';
     imports: [DbModule, CommonModule, StudentModule, CollegeModule],
     controllers: [FollowerController],
     providers: [FollowerService],
+    exports: [FollowerService],
 })
 export class FollowerModule {}

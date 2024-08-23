@@ -12,6 +12,7 @@ import { PostModule } from './post/post.module';
 import { CommentModule } from './comment/comment.module';
 import { ReactionModule } from './reaction/reaction.module';
 import { SearchModule } from './search/search.module';
+import { FeedModule } from './feed/feed.module';
 
 @Module({
     imports: [
@@ -28,6 +29,7 @@ import { SearchModule } from './search/search.module';
         CommentModule,
         ReactionModule,
         SearchModule,
+        FeedModule,
     ],
 })
 export class AppModule {}
