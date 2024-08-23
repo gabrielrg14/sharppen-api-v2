@@ -1,5 +1,6 @@
 import {
     CollegeDTO,
+    CollegePasswordDTO,
     CreateCollegeDTO,
     UpdateCollegeDTO,
     UpdateCollegePasswordDTO,
@@ -22,6 +23,10 @@ export abstract class CollegeRepository {
     abstract getFirstCollege(
         where: Prisma.CollegeWhereInput,
     ): Promise<CollegeDTO>;
+
+    abstract getCollegePassword(
+        where: Prisma.CollegeWhereUniqueInput,
+    ): Promise<CollegePasswordDTO>;
 
     abstract updateCollege(params: {
         where: Prisma.CollegeWhereUniqueInput;

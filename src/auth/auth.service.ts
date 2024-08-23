@@ -1,15 +1,16 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthRepository } from './auth.repository';
-import { PrismaService } from 'src/db/prisma.service';
+import { StudentService } from 'src/student/student.service';
+import { CollegeService } from 'src/college/college.service';
 import { JwtService } from '@nestjs/jwt';
-import { AuthDTO } from './dto/auth.dto';
-import { AuthTokenDTO } from './dto/auth-token.dto';
+import { AuthDTO, AuthTokenDTO } from './dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService implements AuthRepository {
     constructor(
-        private readonly prisma: PrismaService,
+        private readonly studentService: StudentService,
+        private readonly collegeService: CollegeService,
         private readonly jwtService: JwtService,
     ) {}
 
@@ -18,13 +19,8 @@ export class AuthService implements AuthRepository {
     async authenticate(authData: AuthDTO): Promise<AuthTokenDTO> {
         const { email, password } = authData;
 
-        const student = await this.prisma.student.findUnique({
-            where: { email },
-        });
-
-        const college = await this.prisma.college.findUnique({
-            where: { email },
-        });
+        const student = await this.studentService.getStudentPassword({ email });
+        const college = await this.collegeService.getCollegePassword({ email });
 
         if (!student && !college)
             throw new UnauthorizedException(this.invalidCredentialsMessage);

@@ -4,6 +4,7 @@ import { PrismaService } from 'src/db/prisma.service';
 import { ExceptionService } from 'src/common/exception.service';
 import {
     StudentDTO,
+    StudentPasswordDTO,
     CreateStudentDTO,
     UpdateStudentDTO,
     UpdateStudentPasswordDTO,
@@ -103,6 +104,18 @@ export class StudentService implements StudentRepository {
         return await this.prisma.student.findFirst({
             where,
             select: this.studentSelect,
+        });
+    }
+
+    async getStudentPassword(
+        where: Prisma.StudentWhereUniqueInput,
+    ): Promise<StudentPasswordDTO> {
+        return await this.prisma.student.findUnique({
+            where,
+            select: {
+                id: true,
+                password: true,
+            },
         });
     }
 

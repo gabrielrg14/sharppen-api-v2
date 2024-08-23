@@ -1,5 +1,6 @@
 import {
     StudentDTO,
+    StudentPasswordDTO,
     CreateStudentDTO,
     UpdateStudentDTO,
     UpdateStudentPasswordDTO,
@@ -22,6 +23,10 @@ export abstract class StudentRepository {
     abstract getFirstStudent(
         where: Prisma.StudentWhereInput,
     ): Promise<StudentDTO>;
+
+    abstract getStudentPassword(
+        where: Prisma.StudentWhereUniqueInput,
+    ): Promise<StudentPasswordDTO>;
 
     abstract updateStudent(params: {
         where: Prisma.StudentWhereUniqueInput;

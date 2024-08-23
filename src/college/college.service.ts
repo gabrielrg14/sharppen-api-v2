@@ -3,8 +3,9 @@ import { CollegeRepository } from './college.repository';
 import { PrismaService } from 'src/db/prisma.service';
 import { ExceptionService } from 'src/common/exception.service';
 import {
-    CreateCollegeDTO,
     CollegeDTO,
+    CollegePasswordDTO,
+    CreateCollegeDTO,
     UpdateCollegeDTO,
     UpdateCollegePasswordDTO,
 } from './dto';
@@ -104,6 +105,18 @@ export class CollegeService implements CollegeRepository {
         return await this.prisma.college.findFirst({
             where,
             select: this.collegeSelect,
+        });
+    }
+
+    async getCollegePassword(
+        where: Prisma.CollegeWhereUniqueInput,
+    ): Promise<CollegePasswordDTO> {
+        return await this.prisma.college.findUnique({
+            where,
+            select: {
+                id: true,
+                password: true,
+            },
         });
     }
 
