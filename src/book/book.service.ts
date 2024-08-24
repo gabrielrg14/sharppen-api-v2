@@ -4,6 +4,7 @@ import { PrismaService } from 'src/db/prisma.service';
 import { ExceptionService } from 'src/common/exception.service';
 import { StudentService } from 'src/student/student.service';
 import { CollegeService } from 'src/college/college.service';
+import { FollowerService } from 'src/follower/follower.service';
 import { BookDTO, CreateBookDTO, UpdateBookDTO } from './dto';
 import { Prisma } from '@prisma/client';
 
@@ -14,6 +15,7 @@ export class BookService implements BookRepository {
         private readonly exceptionService: ExceptionService,
         private readonly studentService: StudentService,
         private readonly collegeService: CollegeService,
+        private readonly followerService: FollowerService,
     ) {}
 
     private readonly selectBook = {
@@ -72,22 +74,19 @@ export class BookService implements BookRepository {
         await this.studentService.getUniqueStudent({ id: studentId });
 
         try {
-            const collegesFollowed = await this.prisma.follower.findMany({
+            const collegesFollowed = await this.followerService.getFollowers({
                 where: { studentId },
-                select: {
-                    college: {
-                        select: {
-                            books: {
-                                select: this.selectBook,
-                            },
-                        },
-                    },
-                },
             });
 
-            return collegesFollowed
-                .map((cf) => cf.college.books)
-                .reduce((books, book) => books.concat(book), []);
+            const collegesBooks = await collegesFollowed.map(async (cf) => {
+                return await this.getBooks({
+                    where: { collegeId: cf.college.id },
+                });
+            });
+
+            return Promise.all(collegesBooks).then((collegesBooks) =>
+                collegesBooks.flat(),
+            );
         } catch (err) {
             this.exceptionService.somethingBadHappened('books', 'found');
         }

@@ -21,7 +21,7 @@ GET http://localhost:3000/book?collegeId=808f7526-87f6-42fa-9f63-3a3ae23bdeb0
 ###
 
 # GET STUDENT BOOKS
-GET http://localhost:3000/book?studentId=73a585fb-04ef-4815-bb3d-3982c0dd53f6
+GET http://localhost:3000/book?studentId=522e3971-9bea-417c-8f49-49d06c8581d7
 
 ###
 
