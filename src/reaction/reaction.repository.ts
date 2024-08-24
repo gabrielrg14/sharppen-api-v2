@@ -2,9 +2,9 @@ import { ReactionDTO, ReactDTO } from './dto';
 import { Prisma } from '@prisma/client';
 
 export abstract class ReactionRepository {
-    abstract reactUnreact(data: ReactDTO, subjectId: string): Promise<void>;
+    abstract reactUnreact(subjectId: string, data: ReactDTO): Promise<void>;
 
-    abstract checkReaction(data: ReactDTO, subjectId: string): Promise<boolean>;
+    abstract checkReaction(subjectId: string, data: ReactDTO): Promise<boolean>;
 
     abstract getReactionCount(
         where: Prisma.ReactionWhereInput,

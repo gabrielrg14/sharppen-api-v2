@@ -25,19 +25,19 @@ export class ReactionController {
     @UseGuards(AuthGuard)
     @HttpCode(HttpStatus.OK)
     reactOrUnreact(
-        @Body() reactData: ReactDTO,
         @Request() req: RequestTokenDTO,
+        @Body() reactData: ReactDTO,
     ): Promise<void> {
-        return this.reactionService.reactUnreact(reactData, req.token?.sub);
+        return this.reactionService.reactUnreact(req.token.sub, reactData);
     }
 
     @Get('/check')
     @UseGuards(AuthGuard)
     checkIfReacting(
-        @Body() reactData: ReactDTO,
         @Request() req: RequestTokenDTO,
+        @Body() reactData: ReactDTO,
     ): Promise<boolean> {
-        return this.reactionService.checkReaction(reactData, req.token?.sub);
+        return this.reactionService.checkReaction(req.token.sub, reactData);
     }
 
     @Get('/count')

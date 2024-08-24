@@ -22,10 +22,10 @@ export class RoutineController {
     @Post()
     @UseGuards(AuthGuard)
     createRoutine(
-        @Body() routineData: CreateRoutineDTO,
         @Request() req: RequestTokenDTO,
+        @Body() routineData: CreateRoutineDTO,
     ): Promise<RoutineDTO> {
-        return this.routineService.createRoutine(routineData, req.token?.sub);
+        return this.routineService.createRoutine(req.token.sub, routineData);
     }
 
     @Get()
@@ -53,10 +53,11 @@ export class RoutineController {
     @Put('/:uuid')
     @UseGuards(AuthGuard)
     updateRoutineById(
+        @Request() req: RequestTokenDTO,
         @Param('uuid', ParseUUIDPipe) routineId: string,
         @Body() routineData: UpdateRoutineDTO,
     ): Promise<RoutineDTO> {
-        return this.routineService.updateRoutine({
+        return this.routineService.updateRoutine(req.token.sub, {
             where: { id: routineId },
             data: routineData,
         });
@@ -65,8 +66,11 @@ export class RoutineController {
     @Delete('/:uuid')
     @UseGuards(AuthGuard)
     deleteRoutineById(
+        @Request() req: RequestTokenDTO,
         @Param('uuid', ParseUUIDPipe) routineId: string,
     ): Promise<void> {
-        return this.routineService.deleteRoutine({ id: routineId });
+        return this.routineService.deleteRoutine(req.token.sub, {
+            id: routineId,
+        });
     }
 }

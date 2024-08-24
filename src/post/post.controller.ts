@@ -24,10 +24,10 @@ export class PostController {
     @Post()
     @UseGuards(AuthGuard)
     createPost(
-        @Body() postData: CreatePostDTO,
         @Request() req: RequestTokenDTO,
+        @Body() postData: CreatePostDTO,
     ): Promise<PostDTO> {
-        return this.postService.createPost(postData, req.token?.sub);
+        return this.postService.createPost(req.token.sub, postData);
     }
 
     @Get()
@@ -52,10 +52,11 @@ export class PostController {
     @Put('/:uuid')
     @UseGuards(AuthGuard)
     updatePostById(
+        @Request() req: RequestTokenDTO,
         @Param('uuid', ParseUUIDPipe) postId: string,
         @Body() postData: UpdatePostDTO,
     ): Promise<PostDTO> {
-        return this.postService.updatePost({
+        return this.postService.updatePost(req.token.sub, {
             where: { id: postId },
             data: postData,
         });
@@ -64,8 +65,9 @@ export class PostController {
     @Delete('/:uuid')
     @UseGuards(AuthGuard)
     deletePostById(
+        @Request() req: RequestTokenDTO,
         @Param('uuid', ParseUUIDPipe) postId: string,
     ): Promise<void> {
-        return this.postService.deletePost({ id: postId });
+        return this.postService.deletePost(req.token.sub, { id: postId });
     }
 }

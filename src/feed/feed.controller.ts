@@ -11,6 +11,6 @@ export class FeedController {
     @Get()
     @UseGuards(AuthGuard)
     getStudentFeed(@Request() req: RequestTokenDTO): Promise<FeedPostDTO[]> {
-        return this.feedService.getStudentPostFeed(req.token?.sub);
+        return this.feedService.getStudentPostFeed(req.token.sub);
     }
 }

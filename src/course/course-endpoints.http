@@ -16,17 +16,17 @@ GET http://localhost:3000/course
 ###
 
 # GET COLLEGE COURSES
-GET http://localhost:3000/course?collegeId=808f7526-87f6-42fa-9f63-3a3ae23bdeb0
+GET http://localhost:3000/course?collegeId=59c23c5e-85a8-450b-91f1-bff32a529f75
 
 ###
 
 # GET COURSE BY ID
-GET http://localhost:3000/course/a34cb510-ed64-47c2-98cc-a9d0891a0a3d
+GET http://localhost:3000/course/e4312151-70d2-4b17-9a12-8ea7ff09934c
 
 ###
 
 # UPDATE COURSE BY ID
-PUT http://localhost:3000/course/a34cb510-ed64-47c2-98cc-a9d0891a0a3d
+PUT http://localhost:3000/course/e4312151-70d2-4b17-9a12-8ea7ff09934c
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 Content-Type: application/json
 
@@ -38,5 +38,5 @@ Content-Type: application/json
 ###
 
 # DELETE COURSE BY ID
-DELETE http://localhost:3000/course/a34cb510-ed64-47c2-98cc-a9d0891a0a3d
+DELETE http://localhost:3000/course/e4312151-70d2-4b17-9a12-8ea7ff09934c
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}

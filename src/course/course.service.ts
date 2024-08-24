@@ -33,8 +33,8 @@ export class CourseService implements CourseRepository {
     };
 
     async createCourse(
-        data: CreateCourseDTO,
         collegeId: string,
+        data: CreateCourseDTO,
     ): Promise<CourseDTO> {
         await this.collegeService.getUniqueCollege({ id: collegeId });
 
@@ -95,13 +95,16 @@ export class CourseService implements CourseRepository {
         });
     }
 
-    async updateCourse(params: {
-        where: Prisma.CourseWhereUniqueInput;
-        data: UpdateCourseDTO;
-    }): Promise<CourseDTO> {
+    async updateCourse(
+        collegeId: string,
+        params: {
+            where: Prisma.CourseWhereUniqueInput;
+            data: UpdateCourseDTO;
+        },
+    ): Promise<CourseDTO> {
         const { where, data } = params;
 
-        await this.getUniqueCourse(where);
+        await this.getUniqueCourse({ ...where, collegeId });
 
         try {
             return await this.prisma.course.update({
@@ -114,8 +117,11 @@ export class CourseService implements CourseRepository {
         }
     }
 
-    async deleteCourse(where: Prisma.CourseWhereUniqueInput): Promise<void> {
-        await this.getUniqueCourse(where);
+    async deleteCourse(
+        collegeId: string,
+        where: Prisma.CourseWhereUniqueInput,
+    ): Promise<void> {
+        await this.getUniqueCourse({ ...where, collegeId });
 
         try {
             await this.prisma.course.delete({ where });

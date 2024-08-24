@@ -24,19 +24,19 @@ export class FollowerController {
     @UseGuards(AuthGuard)
     @HttpCode(HttpStatus.OK)
     followOrUnfollow(
-        @Param('uuid', ParseUUIDPipe) collegeId: string,
         @Request() req: RequestTokenDTO,
+        @Param('uuid', ParseUUIDPipe) collegeId: string,
     ): Promise<void> {
-        return this.followerService.followUnfollow(req.token?.sub, collegeId);
+        return this.followerService.followUnfollow(req.token.sub, collegeId);
     }
 
-    @Get('/check/:uuid')
+    @Get('/:uuid/check')
     @UseGuards(AuthGuard)
     checkIfFollowing(
-        @Param('uuid', ParseUUIDPipe) collegeId: string,
         @Request() req: RequestTokenDTO,
+        @Param('uuid', ParseUUIDPipe) collegeId: string,
     ): Promise<boolean> {
-        return this.followerService.checkFollower(req.token?.sub, collegeId);
+        return this.followerService.checkFollower(req.token.sub, collegeId);
     }
 
     @Get()

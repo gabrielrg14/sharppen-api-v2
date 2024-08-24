@@ -36,7 +36,7 @@ export class BookService implements BookRepository {
         },
     };
 
-    async createBook(data: CreateBookDTO, collegeId: string): Promise<BookDTO> {
+    async createBook(collegeId: string, data: CreateBookDTO): Promise<BookDTO> {
         await this.collegeService.getUniqueCollege({ id: collegeId });
 
         try {
@@ -116,13 +116,16 @@ export class BookService implements BookRepository {
         });
     }
 
-    async updateBook(params: {
-        where: Prisma.BookWhereUniqueInput;
-        data: UpdateBookDTO;
-    }): Promise<BookDTO> {
+    async updateBook(
+        collegeId: string,
+        params: {
+            where: Prisma.BookWhereUniqueInput;
+            data: UpdateBookDTO;
+        },
+    ): Promise<BookDTO> {
         const { where, data } = params;
 
-        await this.getUniqueBook(where);
+        await this.getUniqueBook({ ...where, collegeId });
 
         try {
             return await this.prisma.book.update({
@@ -135,8 +138,11 @@ export class BookService implements BookRepository {
         }
     }
 
-    async deleteBook(where: Prisma.BookWhereUniqueInput): Promise<void> {
-        await this.getUniqueBook(where);
+    async deleteBook(
+        collegeId: string,
+        where: Prisma.BookWhereUniqueInput,
+    ): Promise<void> {
+        await this.getUniqueBook({ ...where, collegeId });
 
         try {
             await this.prisma.book.delete({ where });

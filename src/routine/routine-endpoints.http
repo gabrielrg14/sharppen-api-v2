@@ -20,17 +20,17 @@ Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 ###
 
 # GET ROUTINE BY STUDENT ID
-GET http://localhost:3000/routine/student/73a585fb-04ef-4815-bb3d-3982c0dd53f6
+GET http://localhost:3000/routine/student/522e3971-9bea-417c-8f49-49d06c8581d7
 
 ###
 
 # GET ROUTINE BY ID
-GET http://localhost:3000/routine/d6842d30-d8fd-40f3-8d67-6b2a50caaf3c
+GET http://localhost:3000/routine/58d87028-43c2-4d34-935e-2e71d84d05c1
 
 ###
 
 # UPDATE ROUTINE BY ID
-PUT http://localhost:3000/routine/d6842d30-d8fd-40f3-8d67-6b2a50caaf3c
+PUT http://localhost:3000/routine/58d87028-43c2-4d34-935e-2e71d84d05c1
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 Content-Type: application/json
 
@@ -42,5 +42,5 @@ Content-Type: application/json
 ###
 
 # DELETE ROUTINE BY ID
-DELETE http://localhost:3000/routine/d6842d30-d8fd-40f3-8d67-6b2a50caaf3c
+DELETE http://localhost:3000/routine/58d87028-43c2-4d34-935e-2e71d84d05c1
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}

@@ -3,8 +3,8 @@ import { Prisma } from '@prisma/client';
 
 export abstract class BookRepository {
     abstract createBook(
-        data: CreateBookDTO,
         collegeId: string,
+        data: CreateBookDTO,
     ): Promise<BookDTO>;
 
     abstract getBooks(params: {
@@ -24,10 +24,16 @@ export abstract class BookRepository {
 
     abstract getFirstBook(where: Prisma.BookWhereInput): Promise<BookDTO>;
 
-    abstract updateBook(params: {
-        where: Prisma.BookWhereUniqueInput;
-        data: UpdateBookDTO;
-    }): Promise<BookDTO>;
+    abstract updateBook(
+        collegeId: string,
+        params: {
+            where: Prisma.BookWhereUniqueInput;
+            data: UpdateBookDTO;
+        },
+    ): Promise<BookDTO>;
 
-    abstract deleteBook(where: Prisma.BookWhereUniqueInput): Promise<void>;
+    abstract deleteBook(
+        collegeId: string,
+        where: Prisma.BookWhereUniqueInput,
+    ): Promise<void>;
 }

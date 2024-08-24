@@ -29,10 +29,10 @@ export class CourseController {
     @Post()
     @UseGuards(AuthGuard)
     createCourse(
-        @Body() courseData: CreateCourseDTO,
         @Request() req: RequestTokenDTO,
+        @Body() courseData: CreateCourseDTO,
     ): Promise<CourseDTO> {
-        return this.courseService.createCourse(courseData, req.token?.sub);
+        return this.courseService.createCourse(req.token.sub, courseData);
     }
 
     @Get()
@@ -57,10 +57,11 @@ export class CourseController {
     @Put('/:uuid')
     @UseGuards(AuthGuard)
     updateCourseById(
+        @Request() req: RequestTokenDTO,
         @Param('uuid', ParseUUIDPipe) courseId: string,
         @Body() courseData: UpdateCourseDTO,
     ): Promise<CourseDTO> {
-        return this.courseService.updateCourse({
+        return this.courseService.updateCourse(req.token.sub, {
             where: { id: courseId },
             data: courseData,
         });
@@ -69,8 +70,11 @@ export class CourseController {
     @Delete('/:uuid')
     @UseGuards(AuthGuard)
     deleteCourseById(
+        @Request() req: RequestTokenDTO,
         @Param('uuid', ParseUUIDPipe) courseId: string,
     ): Promise<void> {
-        return this.courseService.deleteCourse({ id: courseId });
+        return this.courseService.deleteCourse(req.token.sub, {
+            id: courseId,
+        });
     }
 }

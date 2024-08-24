@@ -16,7 +16,7 @@ GET http://localhost:3000/book
 ###
 
 # GET COLLEGE BOOKS
-GET http://localhost:3000/book?collegeId=808f7526-87f6-42fa-9f63-3a3ae23bdeb0
+GET http://localhost:3000/book?collegeId=59c23c5e-85a8-450b-91f1-bff32a529f75
 
 ###
 
@@ -26,12 +26,12 @@ GET http://localhost:3000/book?studentId=522e3971-9bea-417c-8f49-49d06c8581d7
 ###
 
 # GET BOOK BY ID
-GET http://localhost:3000/book/958d3e5c-261f-4d9d-8faa-07e493064288
+GET http://localhost:3000/book/0464ddbb-b4d0-419f-9a42-1b9af3dce70d
 
 ###
 
 # UPDATE BOOK BY ID
-PUT http://localhost:3000/book/958d3e5c-261f-4d9d-8faa-07e493064288
+PUT http://localhost:3000/book/0464ddbb-b4d0-419f-9a42-1b9af3dce70d
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 Content-Type: application/json
 
@@ -43,5 +43,5 @@ Content-Type: application/json
 ###
 
 # DELETE BOOK BY ID
-DELETE http://localhost:3000/book/958d3e5c-261f-4d9d-8faa-07e493064288
+DELETE http://localhost:3000/book/0464ddbb-b4d0-419f-9a42-1b9af3dce70d
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}

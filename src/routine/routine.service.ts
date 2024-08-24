@@ -3,7 +3,7 @@ import { RoutineRepository } from './routine.repository';
 import { PrismaService } from 'src/db/prisma.service';
 import { ExceptionService } from 'src/common/exception.service';
 import { StudentService } from 'src/student/student.service';
-import { CreateRoutineDTO, RoutineDTO, UpdateRoutineDTO } from './dto';
+import { RoutineDTO, CreateRoutineDTO, UpdateRoutineDTO } from './dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -38,8 +38,8 @@ export class RoutineService implements RoutineRepository {
     };
 
     async createRoutine(
-        data: CreateRoutineDTO,
         studentId: string,
+        data: CreateRoutineDTO,
     ): Promise<RoutineDTO> {
         await this.studentService.getUniqueStudent({ id: studentId });
 
@@ -108,13 +108,16 @@ export class RoutineService implements RoutineRepository {
         });
     }
 
-    async updateRoutine(params: {
-        where: Prisma.RoutineWhereUniqueInput;
-        data: UpdateRoutineDTO;
-    }): Promise<RoutineDTO> {
+    async updateRoutine(
+        studentId: string,
+        params: {
+            where: Prisma.RoutineWhereUniqueInput;
+            data: UpdateRoutineDTO;
+        },
+    ): Promise<RoutineDTO> {
         const { where, data } = params;
 
-        await this.getUniqueRoutine(where);
+        await this.getUniqueRoutine({ ...where, studentId });
 
         try {
             return await this.prisma.routine.update({
@@ -127,8 +130,11 @@ export class RoutineService implements RoutineRepository {
         }
     }
 
-    async deleteRoutine(where: Prisma.RoutineWhereUniqueInput): Promise<void> {
-        await this.getUniqueRoutine(where);
+    async deleteRoutine(
+        studentId: string,
+        where: Prisma.RoutineWhereUniqueInput,
+    ): Promise<void> {
+        await this.getUniqueRoutine({ ...where, studentId });
 
         try {
             await this.prisma.routine.delete({ where });

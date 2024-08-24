@@ -51,7 +51,7 @@ export class ReactionService implements ReactionRepository {
         },
     };
 
-    async reactUnreact(data: ReactDTO, subjectId: string): Promise<void> {
+    async reactUnreact(subjectId: string, data: ReactDTO): Promise<void> {
         const { postId, commentId } = data;
         const subjects = {
             postId: null,
@@ -105,7 +105,7 @@ export class ReactionService implements ReactionRepository {
         }
     }
 
-    async checkReaction(data: ReactDTO, subjectId: string): Promise<boolean> {
+    async checkReaction(subjectId: string, data: ReactDTO): Promise<boolean> {
         const { postId, commentId } = data;
         const subjects = {
             postId: null,

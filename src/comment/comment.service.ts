@@ -5,7 +5,7 @@ import { ExceptionService } from 'src/common/exception.service';
 import { StudentService } from 'src/student/student.service';
 import { CollegeService } from 'src/college/college.service';
 import { PostService } from 'src/post/post.service';
-import { CreateCommentDTO, CommentDTO, UpdateCommentDTO } from './dto';
+import { CommentDTO, CreateCommentDTO, UpdateCommentDTO } from './dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -54,8 +54,8 @@ export class CommentService implements CommentRepository {
     };
 
     async createComment(
-        data: CreateCommentDTO,
         subjectId: string,
+        data: CreateCommentDTO,
     ): Promise<CommentDTO> {
         const { postId, commentId } = data;
         const subject = {
@@ -153,13 +153,19 @@ export class CommentService implements CommentRepository {
         });
     }
 
-    async updateComment(params: {
-        where: Prisma.CommentWhereUniqueInput;
-        data: UpdateCommentDTO;
-    }): Promise<CommentDTO> {
+    async updateComment(
+        subjectId: string,
+        params: {
+            where: Prisma.CommentWhereUniqueInput;
+            data: UpdateCommentDTO;
+        },
+    ): Promise<CommentDTO> {
         const { where, data } = params;
 
-        await this.getUniqueComment(where);
+        await this.getUniqueComment({
+            ...where,
+            OR: [{ studentId: subjectId }, { collegeId: subjectId }],
+        });
 
         try {
             return await this.prisma.comment.update({
@@ -172,8 +178,14 @@ export class CommentService implements CommentRepository {
         }
     }
 
-    async deleteComment(where: Prisma.CommentWhereUniqueInput): Promise<void> {
-        await this.getUniqueComment(where);
+    async deleteComment(
+        subjectId: string,
+        where: Prisma.CommentWhereUniqueInput,
+    ): Promise<void> {
+        await this.getUniqueComment({
+            ...where,
+            OR: [{ studentId: subjectId }, { collegeId: subjectId }],
+        });
 
         try {
             await this.prisma.comment.delete({ where });

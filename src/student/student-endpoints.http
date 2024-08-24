@@ -23,8 +23,8 @@ GET http://localhost:3000/student/522e3971-9bea-417c-8f49-49d06c8581d7
 
 ###
 
-# UPDATE STUDENT BY ID
-PUT http://localhost:3000/student/522e3971-9bea-417c-8f49-49d06c8581d7
+# UPDATE STUDENT
+PUT http://localhost:3000/student
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 Content-Type: application/json
 
@@ -37,8 +37,8 @@ Content-Type: application/json
 
 ###
 
-# UPDATE STUDENT PASSWORD BY ID
-PATCH http://localhost:3000/student/522e3971-9bea-417c-8f49-49d06c8581d7/password
+# UPDATE STUDENT PASSWORD
+PATCH http://localhost:3000/student/password
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 Content-Type: application/json
 
@@ -50,18 +50,18 @@ Content-Type: application/json
 
 ###
 
-# DEACTIVATE STUDENT BY ID
-PATCH http://localhost:3000/student/522e3971-9bea-417c-8f49-49d06c8581d7/deactivate
+# DEACTIVATE STUDENT
+PATCH http://localhost:3000/student/deactivate
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 
 ###
 
-# REACTIVATE STUDENT BY ID
-PATCH http://localhost:3000/student/522e3971-9bea-417c-8f49-49d06c8581d7/reactivate
+# REACTIVATE STUDENT
+PATCH http://localhost:3000/student/reactivate
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 
 ###
 
-# DELETE STUDENT BY ID
-DELETE http://localhost:3000/student/522e3971-9bea-417c-8f49-49d06c8581d7
+# DELETE STUDENT
+DELETE http://localhost:3000/student
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}

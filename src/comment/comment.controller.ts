@@ -29,10 +29,10 @@ export class CommentController {
     @Post()
     @UseGuards(AuthGuard)
     createComment(
-        @Body() commentData: CreateCommentDTO,
         @Request() req: RequestTokenDTO,
+        @Body() commentData: CreateCommentDTO,
     ): Promise<CommentDTO> {
-        return this.commentService.createComment(commentData, req.token?.sub);
+        return this.commentService.createComment(req.token.sub, commentData);
     }
 
     @Get('/count')
@@ -78,10 +78,11 @@ export class CommentController {
     @Put('/:uuid')
     @UseGuards(AuthGuard)
     updateCommentById(
+        @Request() req: RequestTokenDTO,
         @Param('uuid', ParseUUIDPipe) commentId: string,
         @Body() commentData: UpdateCommentDTO,
     ): Promise<CommentDTO> {
-        return this.commentService.updateComment({
+        return this.commentService.updateComment(req.token.sub, {
             where: { id: commentId },
             data: commentData,
         });
@@ -90,8 +91,11 @@ export class CommentController {
     @Delete('/:uuid')
     @UseGuards(AuthGuard)
     deleteCommentById(
+        @Request() req: RequestTokenDTO,
         @Param('uuid', ParseUUIDPipe) commentId: string,
     ): Promise<void> {
-        return this.commentService.deleteComment({ id: commentId });
+        return this.commentService.deleteComment(req.token.sub, {
+            id: commentId,
+        });
     }
 }

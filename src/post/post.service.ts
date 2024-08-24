@@ -3,7 +3,7 @@ import { PostRepository } from './post.repository';
 import { PrismaService } from 'src/db/prisma.service';
 import { ExceptionService } from 'src/common/exception.service';
 import { CollegeService } from 'src/college/college.service';
-import { CreatePostDTO, PostDTO, UpdatePostDTO } from './dto';
+import { PostDTO, CreatePostDTO, UpdatePostDTO } from './dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -37,7 +37,7 @@ export class PostService implements PostRepository {
         },
     };
 
-    async createPost(data: CreatePostDTO, collegeId: string): Promise<PostDTO> {
+    async createPost(collegeId: string, data: CreatePostDTO): Promise<PostDTO> {
         await this.collegeService.getUniqueCollege({ id: collegeId });
 
         try {
@@ -95,13 +95,16 @@ export class PostService implements PostRepository {
         });
     }
 
-    async updatePost(params: {
-        where: Prisma.PostWhereUniqueInput;
-        data: UpdatePostDTO;
-    }): Promise<PostDTO> {
+    async updatePost(
+        collegeId: string,
+        params: {
+            where: Prisma.PostWhereUniqueInput;
+            data: UpdatePostDTO;
+        },
+    ): Promise<PostDTO> {
         const { where, data } = params;
 
-        await this.getUniquePost(where);
+        await this.getUniquePost({ ...where, collegeId });
 
         try {
             return await this.prisma.post.update({
@@ -114,8 +117,11 @@ export class PostService implements PostRepository {
         }
     }
 
-    async deletePost(where: Prisma.PostWhereUniqueInput): Promise<void> {
-        await this.getUniquePost(where);
+    async deletePost(
+        collegeId: string,
+        where: Prisma.PostWhereUniqueInput,
+    ): Promise<void> {
+        await this.getUniquePost({ ...where, collegeId });
 
         try {
             await this.prisma.post.delete({ where });

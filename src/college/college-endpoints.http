@@ -24,8 +24,8 @@ GET http://localhost:3000/college/59c23c5e-85a8-450b-91f1-bff32a529f75
 
 ###
 
-# UPDATE COLLEGE BY ID
-PUT http://localhost:3000/college/59c23c5e-85a8-450b-91f1-bff32a529f75
+# UPDATE COLLEGE
+PUT http://localhost:3000/college
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 Content-Type: application/json
 
@@ -39,8 +39,8 @@ Content-Type: application/json
 
 ###
 
-# UPDATE COLLEGE PASSWORD BY ID
-PATCH http://localhost:3000/college/59c23c5e-85a8-450b-91f1-bff32a529f75/password
+# UPDATE COLLEGE PASSWORD
+PATCH http://localhost:3000/college/password
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 Content-Type: application/json
 
@@ -52,18 +52,18 @@ Content-Type: application/json
 
 ###
 
-# DEACTIVATE COLLEGE BY ID
-PATCH http://localhost:3000/college/59c23c5e-85a8-450b-91f1-bff32a529f75/deactivate
+# DEACTIVATE COLLEGE
+PATCH http://localhost:3000/college/deactivate
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 
 ###
 
-# REACTIVATE COLLEGE BY ID
-PATCH http://localhost:3000/college/59c23c5e-85a8-450b-91f1-bff32a529f75/reactivate
+# REACTIVATE COLLEGE
+PATCH http://localhost:3000/college/reactivate
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 
 ###
 
-# DELETE COLLEGE BY ID
-DELETE http://localhost:3000/college/59c23c5e-85a8-450b-91f1-bff32a529f75
+# DELETE COLLEGE
+DELETE http://localhost:3000/college
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}

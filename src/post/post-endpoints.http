@@ -15,17 +15,17 @@ GET http://localhost:3000/post
 ###
 
 # GET COLLEGE POSTS
-GET http://localhost:3000/post?collegeId=808f7526-87f6-42fa-9f63-3a3ae23bdeb0
+GET http://localhost:3000/post?collegeId=59c23c5e-85a8-450b-91f1-bff32a529f75
 
 ###
 
 # GET POST BY ID
-GET http://localhost:3000/post/75d1c30a-73bc-4835-bd7b-8d75524e0515
+GET http://localhost:3000/post/12ea07aa-7d2e-477a-80f1-e80136c52638
 
 ###
 
 # UPDATE POST BY ID
-PUT http://localhost:3000/post/75d1c30a-73bc-4835-bd7b-8d75524e0515
+PUT http://localhost:3000/post/12ea07aa-7d2e-477a-80f1-e80136c52638
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}
 Content-Type: application/json
 
@@ -36,5 +36,5 @@ Content-Type: application/json
 ###
 
 # DELETE POST BY ID
-DELETE http://localhost:3000/post/75d1c30a-73bc-4835-bd7b-8d75524e0515
+DELETE http://localhost:3000/post/12ea07aa-7d2e-477a-80f1-e80136c52638
 Authorization: Bearer {{$dotenv AUTH_TOKEN}}

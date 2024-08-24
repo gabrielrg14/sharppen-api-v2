@@ -24,10 +24,10 @@ export class BookController {
     @Post()
     @UseGuards(AuthGuard)
     createBook(
-        @Body() bookData: CreateBookDTO,
         @Request() req: RequestTokenDTO,
+        @Body() bookData: CreateBookDTO,
     ): Promise<BookDTO> {
-        return this.bookService.createBook(bookData, req.token?.sub);
+        return this.bookService.createBook(req.token.sub, bookData);
     }
 
     @Get()
@@ -39,7 +39,6 @@ export class BookController {
         }
 
         const where: Prisma.BookWhereInput = {};
-
         if (query.collegeId) where.collegeId = query.collegeId;
 
         return this.bookService.getBooks({
@@ -58,10 +57,11 @@ export class BookController {
     @Put('/:uuid')
     @UseGuards(AuthGuard)
     updateBookById(
+        @Request() req: RequestTokenDTO,
         @Param('uuid', ParseUUIDPipe) bookId: string,
         @Body() bookData: UpdateBookDTO,
     ): Promise<BookDTO> {
-        return this.bookService.updateBook({
+        return this.bookService.updateBook(req.token.sub, {
             where: { id: bookId },
             data: bookData,
         });
@@ -70,8 +70,9 @@ export class BookController {
     @Delete('/:uuid')
     @UseGuards(AuthGuard)
     deleteBookById(
+        @Request() req: RequestTokenDTO,
         @Param('uuid', ParseUUIDPipe) bookId: string,
     ): Promise<void> {
-        return this.bookService.deleteBook({ id: bookId });
+        return this.bookService.deleteBook(req.token.sub, { id: bookId });
     }
 }

@@ -3,6 +3,7 @@ import {
     UseGuards,
     ParseUUIDPipe,
     Body,
+    Request,
     Param,
     Query,
     Post,
@@ -20,6 +21,7 @@ import {
     UpdateCollegeDTO,
     UpdateCollegePasswordDTO,
 } from './dto';
+import { RequestTokenDTO } from 'src/auth/dto';
 import { Prisma } from '@prisma/client';
 
 @Controller('college')
@@ -57,57 +59,46 @@ export class CollegeController {
         return this.collegeService.getUniqueCollege({ id: collegeId });
     }
 
-    @Put('/:uuid')
+    @Put()
     @UseGuards(AuthGuard)
-    updateCollegeById(
-        @Param('uuid', ParseUUIDPipe) collegeId: string,
+    updateCollege(
+        @Request() req: RequestTokenDTO,
         @Body() collegeData: UpdateCollegeDTO,
     ): Promise<CollegeDTO> {
-        return this.collegeService.updateCollege({
-            where: { id: collegeId },
-            data: collegeData,
-        });
+        return this.collegeService.updateCollege(req.token.sub, collegeData);
     }
 
-    @Patch('/:uuid/password')
+    @Patch('/password')
     @UseGuards(AuthGuard)
-    updateCollegePasswordById(
-        @Param('uuid', ParseUUIDPipe) collegeId: string,
+    updateCollegePassword(
+        @Request() req: RequestTokenDTO,
         @Body() collegeData: UpdateCollegePasswordDTO,
     ): Promise<CollegeDTO> {
-        return this.collegeService.updateCollegePassword({
-            where: { id: collegeId },
-            data: collegeData,
+        return this.collegeService.updateCollegePassword(
+            req.token.sub,
+            collegeData,
+        );
+    }
+
+    @Patch('/deactivate')
+    @UseGuards(AuthGuard)
+    deactivateCollege(@Request() req: RequestTokenDTO): Promise<CollegeDTO> {
+        return this.collegeService.updateCollege(req.token.sub, {
+            active: false,
         });
     }
 
-    @Patch('/:uuid/deactivate')
+    @Patch('/reactivate')
     @UseGuards(AuthGuard)
-    deactivateCollegeById(
-        @Param('uuid', ParseUUIDPipe) collegeId: string,
-    ): Promise<CollegeDTO> {
-        return this.collegeService.updateCollege({
-            where: { id: collegeId },
-            data: { active: false },
+    reactivateCollege(@Request() req: RequestTokenDTO): Promise<CollegeDTO> {
+        return this.collegeService.updateCollege(req.token.sub, {
+            active: true,
         });
     }
 
-    @Patch('/:uuid/reactivate')
+    @Delete()
     @UseGuards(AuthGuard)
-    reactivateCollegeById(
-        @Param('uuid', ParseUUIDPipe) collegeId: string,
-    ): Promise<CollegeDTO> {
-        return this.collegeService.updateCollege({
-            where: { id: collegeId },
-            data: { active: true },
-        });
-    }
-
-    @Delete('/:uuid')
-    @UseGuards(AuthGuard)
-    deleteCollegeById(
-        @Param('uuid', ParseUUIDPipe) collegeId: string,
-    ): Promise<void> {
-        return this.collegeService.deleteCollege({ id: collegeId });
+    deleteCollege(@Request() req: RequestTokenDTO): Promise<void> {
+        return this.collegeService.deleteCollege(req.token.sub);
     }
 }

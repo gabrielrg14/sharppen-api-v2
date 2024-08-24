@@ -28,17 +28,15 @@ export abstract class StudentRepository {
         where: Prisma.StudentWhereUniqueInput,
     ): Promise<StudentPasswordDTO>;
 
-    abstract updateStudent(params: {
-        where: Prisma.StudentWhereUniqueInput;
-        data: UpdateStudentDTO;
-    }): Promise<StudentDTO>;
+    abstract updateStudent(
+        studentId: string,
+        data: UpdateStudentDTO,
+    ): Promise<StudentDTO>;
 
-    abstract updateStudentPassword(params: {
-        where: Prisma.StudentWhereUniqueInput;
-        data: UpdateStudentPasswordDTO;
-    }): Promise<StudentDTO>;
+    abstract updateStudentPassword(
+        studentId: string,
+        data: UpdateStudentPasswordDTO,
+    ): Promise<StudentDTO>;
 
-    abstract deleteStudent(
-        where: Prisma.StudentWhereUniqueInput,
-    ): Promise<void>;
+    abstract deleteStudent(studentId: string): Promise<void>;
 }

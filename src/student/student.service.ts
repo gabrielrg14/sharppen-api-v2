@@ -119,14 +119,13 @@ export class StudentService implements StudentRepository {
         });
     }
 
-    async updateStudent(params: {
-        where: Prisma.StudentWhereUniqueInput;
-        data: UpdateStudentDTO;
-    }): Promise<StudentDTO> {
-        const { where, data } = params;
+    async updateStudent(
+        studentId: string,
+        data: UpdateStudentDTO,
+    ): Promise<StudentDTO> {
         const { email, birthDate } = data;
 
-        const student = await this.getUniqueStudent(where);
+        const student = await this.getUniqueStudent({ id: studentId });
 
         if (email) {
             const studentEmail = await this.getFirstStudent({ email });
@@ -137,7 +136,7 @@ export class StudentService implements StudentRepository {
 
         try {
             return await this.prisma.student.update({
-                where,
+                where: { id: student.id },
                 data,
                 select: this.studentSelect,
             });
@@ -146,20 +145,18 @@ export class StudentService implements StudentRepository {
         }
     }
 
-    async updateStudentPassword(params: {
-        where: Prisma.StudentWhereUniqueInput;
-        data: UpdateStudentPasswordDTO;
-    }): Promise<StudentDTO> {
-        const { where, data } = params;
-
+    async updateStudentPassword(
+        studentId: string,
+        data: UpdateStudentPasswordDTO,
+    ): Promise<StudentDTO> {
         if (data.password !== data.passwordConfirmation)
             this.exceptionService.passwordConfirmationNotMatch();
 
-        const student = await this.prisma.student.findUnique({ where });
+        const student = await this.getStudentPassword({ id: studentId });
         if (!student)
             this.exceptionService.subjectNotFound<Prisma.StudentWhereUniqueInput>(
                 'Student',
-                where,
+                { id: studentId },
             );
 
         const isMatch = bcrypt.compareSync(
@@ -175,20 +172,19 @@ export class StudentService implements StudentRepository {
         );
 
         try {
-            return await this.updateStudent({
-                where,
-                data: { password: passwordHash },
+            return await this.updateStudent(student.id, {
+                password: passwordHash,
             });
         } catch (err) {
             this.exceptionService.somethingBadHappened('password', 'changed');
         }
     }
 
-    async deleteStudent(where: Prisma.StudentWhereUniqueInput): Promise<void> {
-        await this.getUniqueStudent(where);
+    async deleteStudent(studentId: string): Promise<void> {
+        await this.getUniqueStudent({ id: studentId });
 
         try {
-            await this.prisma.student.delete({ where });
+            await this.prisma.student.delete({ where: { id: studentId } });
         } catch (err) {
             this.exceptionService.somethingBadHappened('student', 'deleted');
         }

@@ -3,8 +3,8 @@ import { Prisma } from '@prisma/client';
 
 export abstract class CommentRepository {
     abstract createComment(
-        data: CreateCommentDTO,
         subjectId: string,
+        data: CreateCommentDTO,
     ): Promise<CommentDTO>;
 
     abstract getCommentCount(where: Prisma.CommentWhereInput): Promise<number>;
@@ -24,12 +24,16 @@ export abstract class CommentRepository {
         where: Prisma.CommentWhereInput,
     ): Promise<CommentDTO>;
 
-    abstract updateComment(params: {
-        where: Prisma.CommentWhereUniqueInput;
-        data: UpdateCommentDTO;
-    }): Promise<CommentDTO>;
+    abstract updateComment(
+        subjectId: string,
+        params: {
+            where: Prisma.CommentWhereUniqueInput;
+            data: UpdateCommentDTO;
+        },
+    ): Promise<CommentDTO>;
 
     abstract deleteComment(
+        subjectId: string,
         where: Prisma.CommentWhereUniqueInput,
     ): Promise<void>;
 }

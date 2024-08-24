@@ -3,6 +3,7 @@ import {
     UseGuards,
     ParseUUIDPipe,
     Body,
+    Request,
     Param,
     Query,
     Post,
@@ -20,6 +21,7 @@ import {
     UpdateStudentDTO,
     UpdateStudentPasswordDTO,
 } from './dto';
+import { RequestTokenDTO } from 'src/auth/dto';
 import { Prisma } from '@prisma/client';
 
 @Controller('student')
@@ -57,57 +59,46 @@ export class StudentController {
         return this.studentService.getUniqueStudent({ id: studentId });
     }
 
-    @Put('/:uuid')
+    @Put()
     @UseGuards(AuthGuard)
-    updateStudentById(
-        @Param('uuid', ParseUUIDPipe) studentId: string,
+    updateStudent(
+        @Request() req: RequestTokenDTO,
         @Body() studentData: UpdateStudentDTO,
     ): Promise<StudentDTO> {
-        return this.studentService.updateStudent({
-            where: { id: studentId },
-            data: studentData,
-        });
+        return this.studentService.updateStudent(req.token.sub, studentData);
     }
 
-    @Patch('/:uuid/password')
+    @Patch('/password')
     @UseGuards(AuthGuard)
-    updateStudentPasswordById(
-        @Param('uuid', ParseUUIDPipe) studentId: string,
+    updateStudentPassword(
+        @Request() req: RequestTokenDTO,
         @Body() studentData: UpdateStudentPasswordDTO,
     ): Promise<StudentDTO> {
-        return this.studentService.updateStudentPassword({
-            where: { id: studentId },
-            data: studentData,
+        return this.studentService.updateStudentPassword(
+            req.token.sub,
+            studentData,
+        );
+    }
+
+    @Patch('/deactivate')
+    @UseGuards(AuthGuard)
+    deactivateStudent(@Request() req: RequestTokenDTO): Promise<StudentDTO> {
+        return this.studentService.updateStudent(req.token.sub, {
+            active: false,
         });
     }
 
-    @Patch('/:uuid/deactivate')
+    @Patch('/reactivate')
     @UseGuards(AuthGuard)
-    deactivateStudentById(
-        @Param('uuid', ParseUUIDPipe) studentId: string,
-    ): Promise<StudentDTO> {
-        return this.studentService.updateStudent({
-            where: { id: studentId },
-            data: { active: false },
+    reactivateStudent(@Request() req: RequestTokenDTO): Promise<StudentDTO> {
+        return this.studentService.updateStudent(req.token.sub, {
+            active: true,
         });
     }
 
-    @Patch('/:uuid/reactivate')
+    @Delete()
     @UseGuards(AuthGuard)
-    reactivateStudentById(
-        @Param('uuid', ParseUUIDPipe) studentId: string,
-    ): Promise<StudentDTO> {
-        return this.studentService.updateStudent({
-            where: { id: studentId },
-            data: { active: true },
-        });
-    }
-
-    @Delete('/:uuid')
-    @UseGuards(AuthGuard)
-    deleteStudentById(
-        @Param('uuid', ParseUUIDPipe) studentId: string,
-    ): Promise<void> {
-        return this.studentService.deleteStudent({ id: studentId });
+    deleteStudent(@Request() req: RequestTokenDTO): Promise<void> {
+        return this.studentService.deleteStudent(req.token.sub);
     }
 }
