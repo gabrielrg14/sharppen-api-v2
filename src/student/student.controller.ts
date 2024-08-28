@@ -1,9 +1,11 @@
 import {
     Controller,
     UseGuards,
+    UseInterceptors,
     ParseUUIDPipe,
     Body,
     Request,
+    UploadedFile,
     Param,
     Query,
     Post,
@@ -14,6 +16,7 @@ import {
 } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
     StudentDTO,
     StudentQueryParams,
@@ -61,9 +64,11 @@ export class StudentController {
 
     @Put()
     @UseGuards(AuthGuard)
+    @UseInterceptors(FileInterceptor('file'))
     updateStudent(
         @Request() req: RequestTokenDTO,
         @Body() studentData: UpdateStudentDTO,
+        @UploadedFile() file?: Express.Multer.File,
     ): Promise<StudentDTO> {
         return this.studentService.updateStudent(req.token.sub, studentData);
     }
