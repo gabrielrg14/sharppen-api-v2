@@ -27,7 +27,6 @@ export class CollegeService implements CollegeRepository {
         testDate: true,
         phone: true,
         address: true,
-        imagePath: true,
         active: true,
         createdAt: true,
         updatedAt: true,

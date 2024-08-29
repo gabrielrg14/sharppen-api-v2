@@ -7,7 +7,6 @@ export class CollegeDTO implements Omit<CollegeModel, 'password'> {
     testDate: Date;
     phone: string;
     address: string;
-    imagePath: string | null;
     active: boolean;
     createdAt: Date;
     updatedAt: Date;

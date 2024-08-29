@@ -4,6 +4,7 @@ import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { StudentModule } from './student/student.module';
 import { CollegeModule } from './college/college.module';
+import { AvatarModule } from './avatar/avatar.module';
 import { FollowerModule } from './follower/follower.module';
 import { RoutineModule } from './routine/routine.module';
 import { BookModule } from './book/book.module';
@@ -21,6 +22,7 @@ import { FeedModule } from './feed/feed.module';
         AuthModule,
         StudentModule,
         CollegeModule,
+        AvatarModule,
         FollowerModule,
         RoutineModule,
         BookModule,

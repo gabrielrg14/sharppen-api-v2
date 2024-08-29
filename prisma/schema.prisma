@@ -14,10 +14,10 @@ model Student {
   password  String
   birthDate DateTime
   course    String
-  imagePath String?
   active    Boolean    @default(true)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  avatar    Avatar?
   followers Follower[]
   routine   Routine?
   reactions Reaction[]
@@ -32,16 +32,34 @@ model College {
   testDate  DateTime
   phone     String
   address   String
-  imagePath String?
   active    Boolean    @default(true)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  avatar    Avatar?
   followers Follower[]
   books     Book[]
   courses   Course[]
   posts     Post[]
   reactions Reaction[]
   comments  Comment[]
+}
+
+model Avatar {
+  id           String   @id @default(uuid())
+  fieldname    String
+  filename     String
+  originalname String
+  mimetype     String
+  encoding     String
+  destination  String
+  path         String
+  size         Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  studentId    String?  @unique
+  student      Student? @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  collegeId    String?  @unique
+  college      College? @relation(fields: [collegeId], references: [id], onDelete: Cascade)
 }
 
 model Follower {

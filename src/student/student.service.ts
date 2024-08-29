@@ -26,7 +26,6 @@ export class StudentService implements StudentRepository {
         email: true,
         birthDate: true,
         course: true,
-        imagePath: true,
         active: true,
         createdAt: true,
         updatedAt: true,

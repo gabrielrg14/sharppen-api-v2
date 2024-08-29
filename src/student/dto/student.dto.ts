@@ -6,7 +6,6 @@ export class StudentDTO implements Omit<StudentModel, 'password'> {
     email: string;
     birthDate: Date;
     course: string;
-    imagePath: string | null;
     active: boolean;
     createdAt: Date;
     updatedAt: Date;
