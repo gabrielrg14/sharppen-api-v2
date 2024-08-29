@@ -1,0 +1,7 @@
+# GET AVATAR BY ID
+GET http://localhost:3000/avatar/2738a73c-f90f-4941-9ecf-983b94b381f0
+
+###
+
+# GET AVATAR FILE BY ID
+GET http://localhost:3000/avatar/file/2738a73c-f90f-4941-9ecf-983b94b381f0

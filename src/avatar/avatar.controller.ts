@@ -2,9 +2,15 @@ import {
     Controller,
     UseGuards,
     UseInterceptors,
+    ParseUUIDPipe,
+    HttpCode,
+    HttpStatus,
     Request,
     UploadedFile,
+    StreamableFile,
+    Param,
     Post,
+    Get,
 } from '@nestjs/common';
 import { AvatarService } from './avatar.service';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -18,11 +24,27 @@ export class AvatarController {
 
     @Post()
     @UseGuards(AuthGuard)
+    @HttpCode(HttpStatus.OK)
     @UseInterceptors(FileInterceptor('file'))
-    uploadAvatar(
+    uploadAvatarFile(
         @Request() req: RequestTokenDTO,
         @UploadedFile() file: UploadAvatarDTO,
     ): Promise<AvatarDTO> {
-        return this.avatarService.uploadAvatar(req.token.sub, file);
+        return this.avatarService.uploadAvatarFile(req.token.sub, file);
+    }
+
+    @Get('/:uuid')
+    @UseGuards(AuthGuard)
+    getAvatarById(
+        @Param('uuid', ParseUUIDPipe) avatarId: string,
+    ): Promise<AvatarDTO> {
+        return this.avatarService.getUniqueAvatar({ id: avatarId });
+    }
+
+    @Get('/file/:uuid')
+    getAvatarFileById(
+        @Param('uuid', ParseUUIDPipe) avatarId: string,
+    ): Promise<StreamableFile> {
+        return this.avatarService.getAvatarFile({ id: avatarId });
     }
 }

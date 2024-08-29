@@ -1,10 +1,15 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+    Injectable,
+    InternalServerErrorException,
+    StreamableFile,
+} from '@nestjs/common';
 import { AvatarRepository } from './avatar.repository';
 import { PrismaService } from 'src/db/prisma.service';
 import { ExceptionService } from 'src/common/exception.service';
 import { StudentService } from 'src/student/student.service';
 import { CollegeService } from 'src/college/college.service';
 import { AvatarDTO, UploadAvatarDTO } from './dto';
+import { createReadStream } from 'fs';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -32,7 +37,7 @@ export class AvatarService implements AvatarRepository {
         collegeId: true,
     };
 
-    async uploadAvatar(
+    async uploadAvatarFile(
         subjectId: string,
         file: UploadAvatarDTO,
     ): Promise<AvatarDTO> {
@@ -62,6 +67,48 @@ export class AvatarService implements AvatarRepository {
                 create: { ...file, ...subject },
                 update: { ...file },
                 select: this.selectAvatar,
+            });
+        } catch (err) {
+            throw new InternalServerErrorException();
+        }
+    }
+
+    async getUniqueAvatar(
+        where: Prisma.AvatarWhereUniqueInput,
+    ): Promise<AvatarDTO> {
+        try {
+            const avatarFound = await this.prisma.avatar.findUnique({
+                where,
+                select: this.selectAvatar,
+            });
+            if (!avatarFound)
+                this.exceptionService.subjectNotFound<Prisma.AvatarWhereUniqueInput>(
+                    'Avatar',
+                    where,
+                );
+            return avatarFound;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    async getFirstAvatar(where: Prisma.AvatarWhereInput): Promise<AvatarDTO> {
+        return await this.prisma.avatar.findFirst({
+            where,
+            select: this.selectAvatar,
+        });
+    }
+
+    async getAvatarFile(
+        where: Prisma.AvatarWhereUniqueInput,
+    ): Promise<StreamableFile> {
+        const avatar = await this.getUniqueAvatar(where);
+
+        try {
+            const file = createReadStream(avatar.path);
+            return new StreamableFile(file, {
+                type: avatar.mimetype,
+                disposition: `attachment; filename="${avatar.originalname}"`,
             });
         } catch (err) {
             throw new InternalServerErrorException();
