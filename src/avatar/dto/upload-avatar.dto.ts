@@ -32,4 +32,7 @@ export class UploadAvatarDTO {
     @IsNotEmpty()
     @IsNumber()
     size: number;
+
+    @IsNotEmpty()
+    buffer: Buffer;
 }

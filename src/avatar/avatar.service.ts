@@ -4,10 +4,12 @@ import {
     StreamableFile,
 } from '@nestjs/common';
 import { AvatarRepository } from './avatar.repository';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/db/prisma.service';
 import { ExceptionService } from 'src/common/exception.service';
 import { StudentService } from 'src/student/student.service';
 import { CollegeService } from 'src/college/college.service';
+import { createClient } from '@supabase/supabase-js';
 import { AvatarDTO, UploadAvatarDTO } from './dto';
 import { createReadStream } from 'fs';
 import { Prisma } from '@prisma/client';
@@ -15,11 +17,18 @@ import { Prisma } from '@prisma/client';
 @Injectable()
 export class AvatarService implements AvatarRepository {
     constructor(
+        private readonly configService: ConfigService,
         private readonly prisma: PrismaService,
         private readonly exceptionService: ExceptionService,
         private readonly studentService: StudentService,
         private readonly collegeService: CollegeService,
     ) {}
+
+    private readonly supabase = createClient(
+        this.configService.get<string>('SUPABASE_URL'),
+        this.configService.get<string>('SUPABASE_KEY'),
+        { auth: { persistSession: false } },
+    );
 
     private readonly selectAvatar = {
         id: true,
@@ -60,6 +69,10 @@ export class AvatarService implements AvatarRepository {
             );
 
         try {
+            await this.supabase.storage
+                .from('sharppen')
+                .upload(file.originalname, file.buffer, { upsert: true });
+
             return await this.prisma.avatar.upsert({
                 where: subject.studentId
                     ? { studentId: subject.studentId }
