@@ -9,26 +9,28 @@ import { PrismaService } from 'src/db/prisma.service';
 import { ExceptionService } from 'src/common/exception.service';
 import { StudentService } from 'src/student/student.service';
 import { CollegeService } from 'src/college/college.service';
-import { createClient } from '@supabase/supabase-js';
+import { SupabaseClient, createClient } from '@supabase/supabase-js';
 import { AvatarDTO, UploadAvatarDTO } from './dto';
 import { createReadStream } from 'fs';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class AvatarService implements AvatarRepository {
+    private readonly supabase: SupabaseClient;
+
     constructor(
         private readonly configService: ConfigService,
         private readonly prisma: PrismaService,
         private readonly exceptionService: ExceptionService,
         private readonly studentService: StudentService,
         private readonly collegeService: CollegeService,
-    ) {}
-
-    private readonly supabase = createClient(
-        this.configService.get<string>('SUPABASE_URL'),
-        this.configService.get<string>('SUPABASE_KEY'),
-        { auth: { persistSession: false } },
-    );
+    ) {
+        this.supabase = createClient(
+            this.configService.get<string>('SUPABASE_URL'),
+            this.configService.get<string>('SUPABASE_KEY'),
+            { auth: { persistSession: false } },
+        );
+    }
 
     private readonly selectAvatar = {
         id: true,
